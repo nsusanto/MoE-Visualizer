@@ -1,11 +1,16 @@
-import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useMoeStore } from '../../store/moeStore'
 import styles from './VisualizerPage.module.css'
 
 function VisualizerPage() {
-  const [numExperts, setNumExperts] = useState(8)
-  const [topK, setTopK] = useState(2)
-  const [animationSpeed, setAnimationSpeed] = useState(5)
+  // Get values and setters from the store
+  const numExperts = useMoeStore(state => state.numExperts)
+  const topK = useMoeStore(state => state.topK)
+  const animationSpeed = useMoeStore(state => state.animationSpeed)
+  const setNumExperts = useMoeStore(state => state.setNumExperts)
+  const setTopK = useMoeStore(state => state.setTopK)
+  const setAnimationSpeed = useMoeStore(state => state.setAnimationSpeed)
+  const resetConfig = useMoeStore(state => state.resetConfig)
 
   return (
     <div className={styles.container}>
@@ -84,6 +89,9 @@ function VisualizerPage() {
                 <strong>{topK}</strong> out of <strong>{numExperts}</strong> experts
                 at <strong>{animationSpeed}x</strong> speed.
               </p>
+              <button className={styles.resetButton} onClick={resetConfig}>
+                Reset to Defaults
+              </button>
             </div>
           </div>
         </div>
