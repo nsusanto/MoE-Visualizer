@@ -9,7 +9,6 @@ function LandingPage() {
       <header className={styles.header}>
         <div className={styles.headerContent}>
           <div className={styles.logo}>
-            <span className={styles.logoIcon}>⚡</span>
             <span className={styles.logoText}>MoE Visualizer</span>
           </div>
           <nav className={styles.nav}>

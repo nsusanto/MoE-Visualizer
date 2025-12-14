@@ -93,6 +93,84 @@
   margin: 0 auto;
 }
 
+/* Token Input Section */
+.tokenInputSection {
+  background: var(--color-surface);
+  border: 1px solid var(--color-surface-light);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+.tokenInputSection h3 {
+  margin: 0 0 var(--spacing-xs) 0;
+  font-size: 1.25rem;
+  color: var(--color-text);
+}
+
+.inputDescription {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  margin: 0 0 var(--spacing-md) 0;
+}
+
+.tokenInputGroup {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: stretch;
+}
+
+.tokenInput {
+  flex: 1;
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: var(--color-background);
+  color: var(--color-text);
+  border: 1px solid var(--color-surface-light);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-family: inherit;
+  transition: all var(--transition-fast);
+}
+
+.tokenInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+}
+
+.tokenInput::placeholder {
+  color: var(--color-text-secondary);
+  opacity: 0.5;
+}
+
+.addTokenButton {
+  padding: var(--spacing-md) var(--spacing-xl);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  white-space: nowrap;
+}
+
+.addTokenButton:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-glow);
+}
+
+.addTokenButton:active {
+  transform: translateY(0);
+}
+
+.addTokenButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
 /* Visualization Area */
 .visualizationArea {
   background: var(--color-surface);
@@ -276,6 +354,14 @@
 
   .welcomeSection h1 {
     font-size: 2rem;
+  }
+
+  .tokenInputGroup {
+    flex-direction: column;
+  }
+
+  .addTokenButton {
+    width: 100%;
   }
 
   .visualizationArea {

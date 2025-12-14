@@ -20,7 +20,7 @@ interface SimulationStore {
   reset: () => void
 
   // Actions - Token management
-  addToken: () => void
+  addToken: (content?: string) => void
   updateToken: (tokenId: string, updates: Partial<Token>) => void
   removeToken: (tokenId: string) => void
 
@@ -88,9 +88,16 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
   },
 
   // Add a new token to the simulation
-  addToken: () => {
+  addToken: content => {
     const { tokens } = get()
-    const newToken = generateToken(`token-${Date.now()}`)
+    const tokenId = `token-${Date.now()}`
+    const newToken = generateToken(tokenId)
+    
+    // If custom content provided, use it
+    if (content) {
+      newToken.content = content
+    }
+    
     set({ tokens: [...tokens, newToken] })
   },
 

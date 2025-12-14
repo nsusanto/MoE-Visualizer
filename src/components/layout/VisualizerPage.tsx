@@ -1,5 +1,8 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useMoeStore } from '../../store/moeStore'
+import { useSimulationStore } from '../../store/simulationStore'
+import ExpertNetwork from '../visualizers/ExpertNetwork'
 import styles from './VisualizerPage.module.css'
 
 function VisualizerPage() {
@@ -12,13 +15,29 @@ function VisualizerPage() {
   const setAnimationSpeed = useMoeStore(state => state.setAnimationSpeed)
   const resetConfig = useMoeStore(state => state.resetConfig)
 
+  // Token input
+  const [tokenInput, setTokenInput] = useState('')
+  const addToken = useSimulationStore(state => state.addToken)
+
+  const handleAddToken = () => {
+    if (tokenInput.trim()) {
+      addToken(tokenInput.trim())
+      setTokenInput('') // Clear input after adding
+    }
+  }
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleAddToken()
+    }
+  }
+
   return (
     <div className={styles.container}>
       {/* Header */}
       <header className={styles.header}>
         <div className={styles.headerContent}>
           <Link to="/" className={styles.logo}>
-            <span className={styles.logoIcon}>⚡</span>
             <span className={styles.logoText}>MoE Visualizer</span>
           </Link>
           <nav className={styles.nav}>
@@ -40,8 +59,30 @@ function VisualizerPage() {
             </p>
           </div>
 
+          {/* Token Input Section */}
+          <div className={styles.tokenInputSection}>
+            <h3>Add Token</h3>
+            <p className={styles.inputDescription}>
+              Enter content for your token (e.g., "Calculate 2+2", "Translate hello")
+            </p>
+            <div className={styles.tokenInputGroup}>
+              <input
+                type="text"
+                className={styles.tokenInput}
+                placeholder="Enter token content..."
+                value={tokenInput}
+                onChange={e => setTokenInput(e.target.value)}
+                onKeyPress={handleKeyPress}
+              />
+              <button className={styles.addTokenButton} onClick={handleAddToken}>
+                Add Token
+              </button>
+            </div>
+          </div>
+
           {/* Visualization Area */}
           <div className={styles.visualizationArea}>
+            <ExpertNetwork />
           </div>
 
           {/* Control Panel */}
