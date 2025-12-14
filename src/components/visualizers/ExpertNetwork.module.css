@@ -69,6 +69,109 @@
   fill: #cbd5e1;
 }
 
+/* Animation: Selected Expert During Animation */
+.expertGroup.selected .expertCircle {
+  animation: expertPulse 1s ease-in-out infinite;
+  filter: drop-shadow(0 0 15px currentColor) brightness(1.2);
+}
+
+.expertGroup.selected .expertOutline {
+  stroke-width: 4px;
+  animation: expertGlow 1s ease-in-out infinite;
+}
+
+@keyframes expertPulse {
+  0%,
+  100% {
+    opacity: 0.9;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes expertGlow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 8px currentColor);
+  }
+  50% {
+    filter: drop-shadow(0 0 15px currentColor);
+  }
+}
+
+.expertScore {
+  animation: scoreAppear 0.3s ease-out;
+}
+
+@keyframes scoreAppear {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Routing Lines */
+.routingLine {
+  transition: opacity var(--transition-fast), stroke-width var(--transition-fast);
+}
+
+.routingLine:hover {
+  opacity: 1;
+  stroke-width: 5px;
+}
+
+/* Token Styles */
+.tokenGroup {
+  transition: all var(--transition-fast);
+  animation: tokenAppear 0.4s ease-out;
+}
+
+.tokenCircle {
+  transition: all var(--transition-normal);
+  filter: drop-shadow(0 0 8px rgba(6, 182, 212, 0.5));
+}
+
+.tokenOutline {
+  transition: all var(--transition-normal);
+  opacity: 0.8;
+}
+
+.tokenLabel {
+  pointer-events: none;
+  user-select: none;
+}
+
+.tokenContent {
+  pointer-events: none;
+  user-select: none;
+  font-family: monospace;
+}
+
+.tokenGroup:hover .tokenCircle {
+  filter: drop-shadow(0 0 12px rgba(6, 182, 212, 0.8)) brightness(1.1);
+}
+
+.tokenGroup:hover .tokenOutline {
+  stroke-width: 3;
+  opacity: 1;
+}
+
+@keyframes tokenAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 /* Animation when experts appear */
 .expertGroup {
   animation: fadeIn 0.5s ease-out;

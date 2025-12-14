@@ -1,6 +1,14 @@
 import { create } from 'zustand'
-import type { Expert, Token, RoutingDecision, MoeStats } from '../types/moe.types'
+import type {
+  Expert,
+  Token,
+  RoutingDecision,
+  MoeStats,
+  AnimationState,
+} from '../types/moe.types'
 import { initializeExperts, generateToken } from '../utils/moeInitialization'
+import { routeToken } from '../utils/routing'
+import { useMoeStore } from './moeStore'
 
 interface SimulationStore {
   // Core simulation data
@@ -14,6 +22,9 @@ interface SimulationStore {
 
   // Statistics
   stats: MoeStats
+
+  // Animation state for visual feedback
+  animationState: AnimationState
 
   // Actions - Initialization
   initializeSimulation: (numExperts: number) => void
@@ -38,6 +49,10 @@ interface SimulationStore {
 
   // Actions - Stats
   updateStats: () => void
+
+  // Actions - Animation
+  setAnimationState: (state: Partial<AnimationState>) => void
+  resetAnimation: () => void
 }
 
 const initialStats: MoeStats = {
@@ -48,6 +63,14 @@ const initialStats: MoeStats = {
   isBalanced: true,
 }
 
+const initialAnimationState: AnimationState = {
+  currentStep: 'idle',
+  currentTokenIndex: -1,
+  expertScores: [],
+  selectedExperts: [],
+  isPlaying: false,
+}
+
 export const useSimulationStore = create<SimulationStore>((set, get) => ({
   // Initial state
   experts: [],
@@ -56,6 +79,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
   isPlaying: false,
   currentTime: 0,
   stats: initialStats,
+  animationState: initialAnimationState,
 
   // Initialize simulation with N experts
   initializeSimulation: numExperts => {
@@ -89,16 +113,36 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
 
   // Add a new token to the simulation
   addToken: content => {
-    const { tokens } = get()
+    const { tokens, experts } = get()
     const tokenId = `token-${Date.now()}`
-    const newToken = generateToken(tokenId)
+    let newToken = generateToken(tokenId)
     
     // If custom content provided, use it
     if (content) {
       newToken.content = content
     }
     
+    // Route the token to experts
+    const topK = useMoeStore.getState().topK
+    newToken = routeToken(newToken, experts, topK)
+    
+    // Record routing decisions
+    newToken.targetExperts.forEach((expertId, index) => {
+      get().recordRouting({
+        tokenId: newToken.id,
+        expertId,
+        weight: newToken.routingWeights[index],
+        timestamp: Date.now(),
+      })
+      
+      // Increment expert load
+      get().incrementExpertLoad(expertId)
+    })
+    
     set({ tokens: [...tokens, newToken] })
+    
+    // Update stats
+    get().updateStats()
   },
 
   // Update a specific token
@@ -171,6 +215,17 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
         isBalanced,
       },
     })
+  },
+
+  // Animation state management
+  setAnimationState: state => {
+    set(prevState => ({
+      animationState: { ...prevState.animationState, ...state },
+    }))
+  },
+
+  resetAnimation: () => {
+    set({ animationState: initialAnimationState })
   },
 }))
 

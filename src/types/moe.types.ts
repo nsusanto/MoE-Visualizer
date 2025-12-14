@@ -46,6 +46,23 @@ export interface MoeStats {
   isBalanced: boolean // Whether load is evenly distributed
 }
 
+// Animation step for educational visualization
+export type AnimationStep =
+  | 'idle'
+  | 'tokenizing'
+  | 'scoring'
+  | 'selecting'
+  | 'routing'
+  | 'complete'
+
+export interface AnimationState {
+  currentStep: AnimationStep
+  currentTokenIndex: number
+  expertScores: number[] // Scores for current token
+  selectedExperts: number[] // Top-K expert IDs
+  isPlaying: boolean
+}
+
 // Expert specializations (for visual variety)
 export const SPECIALIZATIONS = [
   'Mathematics',
