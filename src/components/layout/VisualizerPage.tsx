@@ -1,7 +1,12 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import styles from './VisualizerPage.module.css'
 
 function VisualizerPage() {
+  const [numExperts, setNumExperts] = useState(8)
+  const [topK, setTopK] = useState(2)
+  const [animationSpeed, setAnimationSpeed] = useState(5)
+
   return (
     <div className={styles.container}>
       {/* Header */}
@@ -40,16 +45,45 @@ function VisualizerPage() {
             <div className={styles.controls}>
               <div className={styles.controlGroup}>
                 <label>Number of Experts</label>
-                <input type="range" min="2" max="16" defaultValue="8" disabled />
+                <input
+                  type="range"
+                  min="2"
+                  max="16"
+                  value={numExperts}
+                  onChange={e => setNumExperts(Number(e.target.value))}
+                />
+                <span className={styles.value}>{numExperts}</span>
               </div>
               <div className={styles.controlGroup}>
                 <label>Top-K Selection</label>
-                <input type="range" min="1" max="4" defaultValue="2" disabled />
+                <input
+                  type="range"
+                  min="1"
+                  max={numExperts}
+                  value={topK}
+                  onChange={e => setTopK(Number(e.target.value))}
+                />
+                <span className={styles.value}>{topK}</span>
               </div>
               <div className={styles.controlGroup}>
                 <label>Animation Speed</label>
-                <input type="range" min="1" max="10" defaultValue="5" disabled />
+                <input
+                  type="range"
+                  min="1"
+                  max="10"
+                  value={animationSpeed}
+                  onChange={e => setAnimationSpeed(Number(e.target.value))}
+                />
+                <span className={styles.value}>{animationSpeed}x</span>
               </div>
+            </div>
+
+            <div className={styles.configSummary}>
+              <p>
+                Current Configuration: Each token will be routed to{' '}
+                <strong>{topK}</strong> out of <strong>{numExperts}</strong> experts
+                at <strong>{animationSpeed}x</strong> speed.
+              </p>
             </div>
           </div>
         </div>
