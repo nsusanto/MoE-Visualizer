@@ -1,6 +1,8 @@
+import { useNavigate } from 'react-router-dom'
 import styles from './LandingPage.module.css'
 
 function LandingPage() {
+  const navigate = useNavigate()
   return (
     <div className={styles.container}>
       {/* Header */}
@@ -31,11 +33,13 @@ function LandingPage() {
             balancing in action.
           </p>
           <div className={styles.cta}>
-            <button className={styles.primaryButton}>
+            <button
+              className={styles.primaryButton}
+              onClick={() => navigate('/visualizer')}
+            >
               Start Exploring
               <span className={styles.arrow}>→</span>
             </button>
-            <button className={styles.secondaryButton}>View Demo</button>
           </div>
 
         </div>
