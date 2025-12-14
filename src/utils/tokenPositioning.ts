@@ -1,60 +1,51 @@
 import type { Position } from '../types/moe.types'
 
 /**
- * Calculate token positions using concentric circles to prevent overlap
- * Uses multiple circles with different radii based on token count
+ * Calculate token positions using a compact grid layout
+ * Tokens are arranged in rows, centered around the center point
  */
 export function calculateTokenPositions(
   tokenCount: number,
   centerX: number,
   centerY: number
 ): Position[] {
+  if (tokenCount === 0) return []
+
   const positions: Position[] = []
+  
+  // Token spacing
+  const tokenSpacing = 40 // Horizontal spacing between tokens
+  const rowHeight = 45 // Vertical spacing between rows
 
-  // Define circle layers with capacity
-  const layers = [
-    { radius: 0, capacity: 1 }, // Center (1 token)
-    { radius: 45, capacity: 6 }, // Inner circle (6 tokens)
-    { radius: 75, capacity: 8 }, // Middle circle (8 tokens)
-    { radius: 105, capacity: 12 }, // Outer circle (12 tokens)
-  ]
+  // Calculate optimal number of columns (try to make it roughly square)
+  const columns = Math.ceil(Math.sqrt(tokenCount * 1.5)) // Slightly wider than tall
+  const rows = Math.ceil(tokenCount / columns)
 
-  let remainingTokens = tokenCount
   let tokenIndex = 0
 
-  for (const layer of layers) {
-    if (remainingTokens <= 0) break
+  for (let row = 0; row < rows; row++) {
+    // Calculate how many tokens in this row
+    const tokensInRow = Math.min(columns, tokenCount - tokenIndex)
+    
+    // Calculate starting X position to center this row
+    const rowWidth = (tokensInRow - 1) * tokenSpacing
+    const startX = centerX - rowWidth / 2
 
-    const tokensInThisLayer = Math.min(remainingTokens, layer.capacity)
+    for (let col = 0; col < tokensInRow; col++) {
+      const x = startX + col * tokenSpacing
+      // Center the entire grid vertically
+      const totalHeight = (rows - 1) * rowHeight
+      const y = centerY - totalHeight / 2 + row * rowHeight
 
-    if (layer.radius === 0) {
-      // Center position for single token
-      positions.push({ x: centerX, y: centerY })
-    } else {
-      // Arrange tokens in circle
-      for (let i = 0; i < tokensInThisLayer; i++) {
-        const angle = (i / tokensInThisLayer) * 2 * Math.PI - Math.PI / 2
-        const x = centerX + layer.radius * Math.cos(angle)
-        const y = centerY + layer.radius * Math.sin(angle)
-        positions.push({ x, y })
-      }
+      positions.push({ x, y })
+      tokenIndex++
+
+      if (tokenIndex >= tokenCount) break
     }
 
-    remainingTokens -= tokensInThisLayer
-    tokenIndex += tokensInThisLayer
+    if (tokenIndex >= tokenCount) break
   }
 
   return positions
-}
-
-/**
- * Get the appropriate radius for a token based on total count and its index
- * (Alternative simpler approach)
- */
-export function getTokenRadius(tokenCount: number): number {
-  if (tokenCount <= 1) return 0
-  if (tokenCount <= 6) return 45
-  if (tokenCount <= 12) return 75
-  return 105
 }
 

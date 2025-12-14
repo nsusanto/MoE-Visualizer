@@ -69,6 +69,15 @@ function ExpertNetwork() {
               key={expert.id}
               className={`${styles.expertGroup} ${isSelected ? styles.selected : ''}`}
             >
+              {/* Background circle to block lines */}
+              <circle
+                cx={expert.position.x}
+                cy={expert.position.y}
+                r={32}
+                fill="var(--color-surface)"
+                opacity={1}
+              />
+
               {/* Expert circle */}
               <circle
                 cx={expert.position.x}
@@ -154,6 +163,15 @@ function ExpertNetwork() {
 
           return (
             <g key={token.id} className={styles.tokenGroup}>
+              {/* Background circle to block lines */}
+              <circle
+                cx={tokenPos.x}
+                cy={tokenPos.y}
+                r={17}
+                fill="var(--color-surface)"
+                opacity={1}
+              />
+
               {/* Token circle */}
               <circle
                 cx={tokenPos.x}

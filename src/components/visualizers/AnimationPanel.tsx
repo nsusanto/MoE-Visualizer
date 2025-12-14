@@ -10,7 +10,7 @@ function AnimationPanel() {
   const topK = useMoeStore(state => state.topK)
   const addToken = useSimulationStore(state => state.addToken)
 
-  const MAX_TOKENS = 20
+  const MAX_TOKENS = 18
 
   const [input, setInput] = useState('')
   const setAnimationState = useSimulationStore(state => state.setAnimationState)
@@ -94,7 +94,7 @@ function AnimationPanel() {
     <div className={styles.container}>
       <div className={styles.header}>
         <div>
-          <h3>🎬 Tokenize & Route</h3>
+          <h3>Tokenize & Route</h3>
           <p className={styles.description}>
             Enter text to see the step-by-step MoE routing process (each word becomes a
             token)
