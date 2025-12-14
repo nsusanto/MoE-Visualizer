@@ -5,8 +5,8 @@ function ExpertNetwork() {
   const experts = useSimulationStore(state => state.experts)
 
   // SVG viewBox dimensions
-  const width = 800
-  const height = 500
+  const width = 900
+  const height = 650
 
   return (
     <div className={styles.container}>
@@ -16,8 +16,8 @@ function ExpertNetwork() {
         viewBox={`0 0 ${width} ${height}`}
         className={styles.svg}
       >
-        {/* Center point (for reference - can remove later) */}
-        <circle cx={width / 2} cy={height / 2} r={3} fill="#94a3b8" opacity={0.5} />
+        {/* Center point (for reference) */}
+        <circle cx={450} cy={325} r={3} fill="#94a3b8" opacity={0.5} />
 
         {/* Draw each expert */}
         {experts.map(expert => (

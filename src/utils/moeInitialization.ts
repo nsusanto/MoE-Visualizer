@@ -6,9 +6,9 @@ import { SPECIALIZATIONS, EXPERT_COLORS } from '../types/moe.types'
  */
 export function initializeExperts(count: number): Expert[] {
   const experts: Expert[] = []
-  const radius = 200 // Distance from center
-  const centerX = 400 // Center of visualization area
-  const centerY = 250
+  const radius = 230 // Distance from center
+  const centerX = 450 // Center of visualization area
+  const centerY = 325
 
   for (let i = 0; i < count; i++) {
     const angle = (i / count) * 2 * Math.PI - Math.PI / 2 // Start from top
@@ -36,7 +36,7 @@ export function generateToken(id: string): Token {
   return {
     id,
     content: `Token ${id}`,
-    position: { x: 400, y: 250 }, // Start at center
+    position: { x: 450, y: 325 }, // Start at center
     targetExperts: [],
     routingWeights: [],
     status: 'idle',

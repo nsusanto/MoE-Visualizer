@@ -178,7 +178,7 @@
   border-radius: var(--radius-xl);
   padding: var(--spacing-2xl);
   margin-bottom: var(--spacing-xl);
-  min-height: 500px;
+  min-height: 700px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -366,7 +366,7 @@
 
   .visualizationArea {
     padding: var(--spacing-lg);
-    min-height: 400px;
+    min-height: 500px;
   }
 
   .controls {
