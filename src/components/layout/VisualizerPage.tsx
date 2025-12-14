@@ -18,12 +18,30 @@ function VisualizerPage() {
   // Token input
   const [tokenInput, setTokenInput] = useState('')
   const addToken = useSimulationStore(state => state.addToken)
+  const tokens = useSimulationStore(state => state.tokens)
+
+  const MAX_TOKEN_LENGTH = 100
+  const MAX_TOKENS = 50
 
   const handleAddToken = () => {
-    if (tokenInput.trim()) {
-      addToken(tokenInput.trim())
-      setTokenInput('') // Clear input after adding
+    const trimmed = tokenInput.trim()
+
+    // Validation checks
+    if (!trimmed) return
+    if (trimmed.length > MAX_TOKEN_LENGTH) {
+      alert(`Token content must be ${MAX_TOKEN_LENGTH} characters or less`)
+      return
     }
+    if (tokens.length >= MAX_TOKENS) {
+      alert(`Maximum of ${MAX_TOKENS} tokens allowed`)
+      return
+    }
+
+    // Sanitize: remove potentially dangerous characters
+    const sanitized = trimmed.replace(/[<>]/g, '')
+
+    addToken(sanitized)
+    setTokenInput('') // Clear input after adding
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -73,9 +91,14 @@ function VisualizerPage() {
                 value={tokenInput}
                 onChange={e => setTokenInput(e.target.value)}
                 onKeyPress={handleKeyPress}
+                maxLength={MAX_TOKEN_LENGTH}
               />
-              <button className={styles.addTokenButton} onClick={handleAddToken}>
-                Add Token
+              <button
+                className={styles.addTokenButton}
+                onClick={handleAddToken}
+                disabled={tokens.length >= MAX_TOKENS}
+              >
+                Add Token {tokens.length > 0 && `(${tokens.length}/${MAX_TOKENS})`}
               </button>
             </div>
           </div>
