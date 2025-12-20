@@ -22,11 +22,19 @@ function AnimationPanel() {
   const runAnimation = async () => {
     if (!input.trim()) return
 
+    // Validate token count before processing
+    const words = input.trim().split(/\s+/).filter(w => w.length > 0)
+    if (tokens.length + words.length > MAX_TOKENS) {
+      alert(
+        `Cannot process: This would create ${words.length} tokens, but you already have ${tokens.length}/${MAX_TOKENS}.\n\nYou can only add ${MAX_TOKENS - tokens.length} more token(s).`
+      )
+      return
+    }
+
     setAnimationState({ isPlaying: true })
 
     // Step 1: Tokenizing
     setAnimationState({ currentStep: 'tokenizing' })
-    const words = input.trim().split(/\s+/).filter(w => w.length > 0)
     setInputTokens(words)
     await sleep(1000)
 
@@ -71,6 +79,10 @@ function AnimationPanel() {
 
   const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
+  // Calculate how many tokens the current input would create
+  const inputWordCount = input.trim() ? input.trim().split(/\s+/).filter(w => w.length > 0).length : 0
+  const wouldExceedLimit = tokens.length + inputWordCount > MAX_TOKENS
+
   const getStepDescription = () => {
     const { currentStep, currentTokenIndex } = animationState
 
@@ -106,21 +118,32 @@ function AnimationPanel() {
       </div>
 
       <div className={styles.inputSection}>
-        <input
-          type="text"
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          placeholder="e.g., hello world from MoE"
-          className={styles.input}
-          disabled={animationState.currentStep !== 'idle'}
-          maxLength={100}
-        />
+        <div className={styles.inputWrapper}>
+          <input
+            type="text"
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            placeholder="e.g., hello world from MoE"
+            className={styles.input}
+            disabled={animationState.currentStep !== 'idle'}
+            maxLength={100}
+          />
+          {inputWordCount > 0 && (
+            <span
+              className={`${styles.wordCount} ${wouldExceedLimit ? styles.exceeded : ''}`}
+            >
+              +{inputWordCount} token{inputWordCount !== 1 ? 's' : ''}
+              {wouldExceedLimit && ' ⚠️'}
+            </span>
+          )}
+        </div>
         <button
           onClick={runAnimation}
           disabled={
             animationState.currentStep !== 'idle' ||
             !input.trim() ||
-            tokens.length >= MAX_TOKENS
+            tokens.length >= MAX_TOKENS ||
+            wouldExceedLimit
           }
           className={styles.animateButton}
         >
