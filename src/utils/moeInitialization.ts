@@ -1,4 +1,4 @@
-import type { Expert, Token, Position } from '../types/moe.types'
+import type { Expert, Token } from '../types/moe.types'
 import { SPECIALIZATIONS, EXPERT_COLORS } from '../types/moe.types'
 
 /**
@@ -42,40 +42,5 @@ export function generateToken(id: string): Token {
     status: 'idle',
     timestamp: Date.now(),
   }
-}
-
-/**
- * Calculate position along a path (for animation)
- * @param start Starting position
- * @param end Ending position
- * @param progress 0.0 to 1.0
- */
-export function interpolatePosition(
-  start: Position,
-  end: Position,
-  progress: number
-): Position {
-  return {
-    x: start.x + (end.x - start.x) * progress,
-    y: start.y + (end.y - start.y) * progress,
-  }
-}
-
-/**
- * Generate sample token content (for demo purposes)
- */
-const SAMPLE_CONTENTS = [
-  'Calculate 2+2',
-  'Translate text',
-  'Analyze data',
-  'Generate code',
-  'Summarize article',
-  'Solve equation',
-  'Parse JSON',
-  'Optimize query',
-]
-
-export function generateSampleTokenContent(): string {
-  return SAMPLE_CONTENTS[Math.floor(Math.random() * SAMPLE_CONTENTS.length)]
 }
 
