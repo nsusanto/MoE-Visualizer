@@ -130,7 +130,7 @@ function ExpertNetwork() {
               {expert.id + 1}
             </text>
 
-            {/* Load badge (show current processing count) - no animation */}
+            {/* Load badge (show current processing count) */}
             {currentLoad > 0 && (
               <>
                 <circle
