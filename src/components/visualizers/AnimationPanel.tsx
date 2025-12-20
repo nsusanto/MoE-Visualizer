@@ -196,8 +196,7 @@ function AnimationPanel() {
         {/* Load-based timing explanation */}
         {animationState.currentStep === 'routing' && (
           <div className={styles.timingInfo}>
-            <strong>⏱️ Realistic Timing:</strong> Base 3s + 0.5s per token on same expert (±10%
-            jitter)
+            Base 3s + 0.5s per token on same expert (±10% jitter)
           </div>
         )}
       </div>

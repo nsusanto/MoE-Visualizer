@@ -136,7 +136,7 @@ function ExpertNetwork() {
               {expert.id + 1}
             </text>
 
-            {/* Load badge (show current processing count) */}
+            {/* Load badge (show current processing count) - no animation */}
             {currentLoad > 0 && (
               <>
                 <circle
@@ -144,7 +144,6 @@ function ExpertNetwork() {
                   cy={expert.position.y - 20}
                   r={10}
                   fill="#10b981"
-                  className={styles.loadBadge}
                 />
                 <text
                   x={expert.position.x + 20}
