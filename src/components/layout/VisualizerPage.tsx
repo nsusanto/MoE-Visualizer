@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { useMoeStore } from '../../store/moeStore'
 import ExpertNetwork from '../visualizers/ExpertNetwork'
 import AnimationPanel from '../visualizers/AnimationPanel'
+import StatusLegend from '../common/StatusLegend'
 import styles from './VisualizerPage.module.css'
 
 function VisualizerPage() {
@@ -36,8 +37,7 @@ function VisualizerPage() {
           <div className={styles.welcomeSection}>
             <h1>MoE Visualization Playground</h1>
             <p>
-              Welcome to the interactive Mixture of Experts visualizer! This is where
-              you'll see the magic happen.
+              Welcome to the interactive Mixture of Experts visualizer!
             </p>
           </div>
 
@@ -48,6 +48,9 @@ function VisualizerPage() {
           <div className={styles.visualizationArea}>
             <ExpertNetwork />
           </div>
+
+          {/* Status Legend */}
+          <StatusLegend />
 
           {/* Control Panel */}
           <div className={styles.controlPanel}>
