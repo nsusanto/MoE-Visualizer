@@ -138,6 +138,7 @@ function ExpertNetwork() {
                   cy={expert.position.y - 20}
                   r={10}
                   fill="#10b981"
+                  className={styles.loadBadge}
                 />
                 <text
                   x={expert.position.x + 20}

@@ -192,7 +192,68 @@ function AnimationPanel() {
         </div>
 
         <div className={styles.statusMessage}>{getStepDescription()}</div>
+
+        {/* Load-based timing explanation */}
+        {animationState.currentStep === 'routing' && (
+          <div className={styles.timingInfo}>
+            <strong>⏱️ Realistic Timing:</strong> Base 3s + 0.5s per token on same expert (±10%
+            jitter)
+          </div>
+        )}
       </div>
+
+      {animationState.currentStep !== 'idle' && (
+        <div className={styles.detailsSection}>
+          {animationState.currentStep === 'tokenizing' && (
+            <div className={styles.detail}>
+              <strong>Tokens:</strong> {inputTokens.map(t => `"${t}"`).join(', ')}
+            </div>
+          )}
+
+          {(animationState.currentStep === 'scoring' ||
+            animationState.currentStep === 'selecting' ||
+            animationState.currentStep === 'routing') && (
+            <>
+              <div className={styles.detail}>
+                <strong>Batch Size:</strong> {inputTokens.length} token(s) processed simultaneously
+              </div>
+              <div className={styles.detail}>
+                <strong>Tokens:</strong> {inputTokens.map(t => `"${t}"`).join(', ')}
+              </div>
+
+              {animationState.expertScores.length > 0 && (
+                <div className={styles.scoresGrid}>
+                  {experts.slice(0, 8).map(expert => {
+                    const isSelected = animationState.selectedExperts.includes(expert.id)
+                    return (
+                      <div
+                        key={expert.id}
+                        className={`${styles.expertScore} ${isSelected ? styles.selected : ''}`}
+                      >
+                        <div
+                          className={styles.expertColor}
+                          style={{ backgroundColor: expert.color }}
+                        />
+                        <div className={styles.expertInfo}>
+                          <div className={styles.expertName}>{expert.name}</div>
+                          <div className={styles.score}>
+                            {animationState.currentStep === 'scoring' 
+                              ? `Avg Score: ${animationState.expertScores[expert.id]?.toFixed(3)}`
+                              : isSelected 
+                                ? '✓ Selected'
+                                : `Score: ${animationState.expertScores[expert.id]?.toFixed(3)}`
+                            }
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
     </div>
   )
 }
