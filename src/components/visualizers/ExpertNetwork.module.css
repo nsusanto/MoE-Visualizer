@@ -60,6 +60,25 @@
   font-style: italic;
 }
 
+.expertLoad {
+  fill: #10b981;
+  font-size: 0.625rem;
+  font-weight: 600;
+  pointer-events: none;
+  user-select: none;
+  animation: loadPulse 1s ease-in-out infinite;
+}
+
+@keyframes loadPulse {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
 .expertGroup:hover .expertName {
   fill: #ffffff;
   font-weight: 600;
@@ -67,6 +86,42 @@
 
 .expertGroup:hover .expertSpec {
   fill: #cbd5e1;
+}
+
+/* Expert with active load */
+.expertGroup.hasLoad .expertCircle {
+  filter: brightness(1.1);
+}
+
+.expertGlow {
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.loadBadge {
+  filter: drop-shadow(0 0 4px #10b981);
+  animation: badgePop 0.3s ease-out;
+}
+
+@keyframes badgePop {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* Animation: Selected Expert During Animation */
@@ -131,12 +186,14 @@
 }
 
 .tokenCircle {
-  transition: opacity var(--transition-normal), filter var(--transition-normal);
-  filter: drop-shadow(0 0 8px rgba(6, 182, 212, 0.5));
+  transition: opacity var(--transition-normal), filter var(--transition-normal),
+    fill var(--transition-normal);
+  filter: drop-shadow(0 0 8px currentColor);
 }
 
 .tokenOutline {
-  transition: opacity var(--transition-normal), stroke-width var(--transition-normal);
+  transition: opacity var(--transition-normal), stroke-width var(--transition-normal),
+    stroke var(--transition-normal);
   opacity: 0.8;
 }
 

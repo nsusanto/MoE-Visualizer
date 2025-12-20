@@ -64,11 +64,34 @@ function ExpertNetwork() {
             isScoring && animationState.selectedExperts.includes(expert.id)
           const score = isScoring ? animationState.expertScores[expert.id] : 0
 
+          // Calculate current load for this expert
+          const activeTokens = tokens.filter(
+            t => t.status === 'processing' && t.targetExperts.includes(expert.id)
+          )
+          const currentLoad = activeTokens.length
+          const hasLoad = currentLoad > 0 || expert.isActive
+
+          // Glow intensity based on load
+          const glowOpacity = Math.min(0.3 + currentLoad * 0.15, 1)
+          const glowRadius = 10 + currentLoad * 3
+
           return (
             <g
               key={expert.id}
-              className={`${styles.expertGroup} ${isSelected ? styles.selected : ''}`}
+              className={`${styles.expertGroup} ${isSelected ? styles.selected : ''} ${hasLoad ? styles.hasLoad : ''}`}
             >
+              {/* Glow effect for active experts */}
+              {hasLoad && (
+                <circle
+                  cx={expert.position.x}
+                  cy={expert.position.y}
+                  r={30 + glowRadius}
+                  fill={expert.color}
+                  opacity={glowOpacity * 0.3}
+                  className={styles.expertGlow}
+                />
+              )}
+
               {/* Background circle to block lines */}
               <circle
                 cx={expert.position.x}
@@ -85,7 +108,7 @@ function ExpertNetwork() {
                 r={30}
                 fill={expert.color}
                 className={styles.expertCircle}
-                opacity={isSelected ? 1 : 0.9}
+                opacity={isSelected ? 1 : hasLoad ? 1 : 0.9}
               />
 
               {/* Expert circle outline */}
@@ -113,29 +136,68 @@ function ExpertNetwork() {
               {expert.id + 1}
             </text>
 
-            {/* Expert name below circle */}
-            <text
-              x={expert.position.x}
-              y={expert.position.y + 45}
-              textAnchor="middle"
-              className={styles.expertName}
-              fill="#f1f5f9"
-              fontSize={11}
-            >
-              {expert.name}
-            </text>
+            {/* Load badge (show current processing count) */}
+            {currentLoad > 0 && (
+              <>
+                <circle
+                  cx={expert.position.x + 20}
+                  cy={expert.position.y - 20}
+                  r={10}
+                  fill="#10b981"
+                  className={styles.loadBadge}
+                />
+                <text
+                  x={expert.position.x + 20}
+                  y={expert.position.y - 20}
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  fill="white"
+                  fontSize={10}
+                  fontWeight="700"
+                >
+                  {currentLoad}
+                </text>
+              </>
+            )}
 
-            {/* Specialization */}
-            <text
-              x={expert.position.x}
-              y={expert.position.y + 60}
-              textAnchor="middle"
-              className={styles.expertSpec}
-              fill="#94a3b8"
-              fontSize={9}
-            >
-              {expert.specialization}
-            </text>
+              {/* Expert name below circle */}
+              <text
+                x={expert.position.x}
+                y={expert.position.y + 45}
+                textAnchor="middle"
+                className={styles.expertName}
+                fill="#f1f5f9"
+                fontSize={11}
+              >
+                {expert.name}
+              </text>
+
+              {/* Specialization */}
+              <text
+                x={expert.position.x}
+                y={expert.position.y + 60}
+                textAnchor="middle"
+                className={styles.expertSpec}
+                fill="#94a3b8"
+                fontSize={9}
+              >
+                {expert.specialization}
+              </text>
+
+              {/* Load info (when processing) */}
+              {currentLoad > 0 && (
+                <text
+                  x={expert.position.x}
+                  y={expert.position.y + 75}
+                  textAnchor="middle"
+                  className={styles.expertLoad}
+                  fill="#10b981"
+                  fontSize={8}
+                  fontWeight="600"
+                >
+                  +{(currentLoad * 0.5).toFixed(1)}s delay
+                </text>
+              )}
 
             {/* Score display during animation */}
             {isScoring && (
@@ -161,6 +223,16 @@ function ExpertNetwork() {
           const tokenPos = tokenPositions[index]
           if (!tokenPos) return null
 
+          // Token color based on status
+          const tokenColor =
+            token.status === 'idle'
+              ? '#06b6d4' // Cyan
+              : token.status === 'routing'
+                ? '#f59e0b' // Amber
+                : token.status === 'processing'
+                  ? '#10b981' // Green
+                  : '#94a3b8' // Gray (complete)
+
           return (
             <g key={token.id} className={styles.tokenGroup}>
               {/* Background circle to block lines */}
@@ -177,7 +249,7 @@ function ExpertNetwork() {
                 cx={tokenPos.x}
                 cy={tokenPos.y}
                 r={15}
-                fill="#06b6d4"
+                fill={tokenColor}
                 className={styles.tokenCircle}
                 opacity={0.9}
               />
@@ -188,7 +260,7 @@ function ExpertNetwork() {
                 cy={tokenPos.y}
                 r={15}
                 fill="none"
-                stroke="#06b6d4"
+                stroke={tokenColor}
                 strokeWidth={2}
                 className={styles.tokenOutline}
               />

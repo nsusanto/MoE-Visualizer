@@ -135,14 +135,52 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
         timestamp: Date.now(),
       })
       
-      // Increment expert load
-      get().incrementExpertLoad(expertId)
+      // Mark expert as active
+      get().updateExpert(expertId, { isActive: true })
     })
     
     set({ tokens: [...tokens, newToken] })
     
-    // Update stats
-    get().updateStats()
+    // Calculate processing time based on expert load (realistic!)
+    // Base time: 3 seconds
+    // + 0.5s for each token already on the same experts
+    // + random jitter (±10%)
+    const expertLoads = newToken.targetExperts.map(expertId => {
+      // Count how many other tokens are currently processing on this expert
+      const tokensOnExpert = get().tokens.filter(
+        t => t.status === 'processing' && t.targetExperts.includes(expertId)
+      ).length
+      return tokensOnExpert
+    })
+    
+    // Use the maximum load across all target experts
+    const maxLoad = Math.max(...expertLoads, 0)
+    const baseProcessingTime = 3000 // 3 seconds
+    const loadPenalty = maxLoad * 500 // +0.5s per token on same expert
+    const jitter = (Math.random() - 0.5) * 0.2 // ±10% random variance
+    const processingTime = Math.round((baseProcessingTime + loadPenalty) * (1 + jitter))
+    
+    // Auto-progress token through states
+    setTimeout(() => {
+      get().updateToken(tokenId, { status: 'processing' })
+      
+      // After processing, mark as complete and remove
+      setTimeout(() => {
+        get().updateToken(tokenId, { status: 'complete' })
+        
+        // Increment expert load and deactivate
+        newToken.targetExperts.forEach(expertId => {
+          get().incrementExpertLoad(expertId)
+          get().updateExpert(expertId, { isActive: false })
+        })
+        
+        // Remove token after brief delay
+        setTimeout(() => {
+          get().removeToken(tokenId)
+          get().updateStats()
+        }, 1000) // Show complete state for 1 second
+      }, processingTime) // Variable processing time based on load!
+    }, 100) // Small delay before processing starts
   },
 
   // Update a specific token

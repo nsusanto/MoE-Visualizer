@@ -34,40 +34,55 @@ function AnimationPanel() {
 
     setAnimationState({ isPlaying: true })
 
-    // Step 1: Tokenizing
+    // Step 1: Tokenizing (show all tokens being split)
     setAnimationState({ currentStep: 'tokenizing' })
     setInputTokens(words)
-    await sleep(1000)
+    await sleep(2000)
 
-    // Process each token
-    for (let i = 0; i < words.length; i++) {
-      setAnimationState({ currentTokenIndex: i })
-
-      // Step 2: Scoring
-      setAnimationState({ currentStep: 'scoring' })
-      const mockToken = { content: words[i] } as Token
+    // Step 2: Scoring (ALL tokens scored in parallel - like real MoE!)
+    setAnimationState({ currentStep: 'scoring' })
+    // Compute scores for all tokens at once (batch processing)
+    const allTokenScores: number[][] = []
+    for (const word of words) {
+      const mockToken = { content: word } as Token
       const tokenScores = computeGatingScores(mockToken, experts)
-      setAnimationState({ expertScores: tokenScores })
-      await sleep(1500)
+      allTokenScores.push(tokenScores)
+    }
+    // Show aggregate scores (average across all tokens)
+    const aggregateScores = experts.map((_, expertIdx) => {
+      const sum = allTokenScores.reduce((acc, scores) => acc + scores[expertIdx], 0)
+      return sum / allTokenScores.length
+    })
+    setAnimationState({ expertScores: aggregateScores })
+    await sleep(2000)
 
-      // Step 3: Selecting Top-K
-      setAnimationState({ currentStep: 'selecting' })
+    // Step 3: Selecting Top-K (for each token in parallel)
+    setAnimationState({ currentStep: 'selecting' })
+    const allSelectedExperts: number[][] = []
+    for (const tokenScores of allTokenScores) {
       const topExperts = selectTopK(tokenScores, topK)
-      setAnimationState({ selectedExperts: topExperts })
-      await sleep(1500)
+      allSelectedExperts.push(topExperts)
+    }
+    // Show all unique experts that will be used
+    const allUniqueExperts = [...new Set(allSelectedExperts.flat())]
+    setAnimationState({ selectedExperts: allUniqueExperts })
+    await sleep(2000)
 
-      // Step 4: Routing
-      setAnimationState({ currentStep: 'routing' })
-      // Weights are normalized and will be applied when token is added
-      await sleep(1500)
+    // Step 4: Routing (all tokens routed simultaneously)
+    setAnimationState({ currentStep: 'routing' })
+    await sleep(2000)
 
-      // Add to visualization
+    // Add tokens with staggered timing (100ms between each) for cinematic effect
+    for (let i = 0; i < words.length; i++) {
       addToken(words[i])
+      if (i < words.length - 1) {
+        await sleep(100) // Stagger arrival
+      }
     }
 
     // Step 5: Complete
     setAnimationState({ currentStep: 'complete' })
-    await sleep(1500)
+    await sleep(2000)
 
     // Reset
     reset()
@@ -85,21 +100,21 @@ function AnimationPanel() {
   const wouldExceedLimit = tokens.length + inputWordCount > MAX_TOKENS
 
   const getStepDescription = () => {
-    const { currentStep, currentTokenIndex } = animationState
+    const { currentStep } = animationState
 
     switch (currentStep) {
       case 'idle':
         return 'Enter text to tokenize and route through the MoE network'
       case 'tokenizing':
-        return `Tokenizing: Split input into ${inputTokens.length} word(s)`
+        return `Tokenizing: Split input into ${inputTokens.length} token(s)`
       case 'scoring':
-        return `Scoring: Computing gating scores for token "${inputTokens[currentTokenIndex]}"`
+        return `Scoring: Computing gating scores for ALL ${inputTokens.length} token(s) in parallel (batch processing)`
       case 'selecting':
-        return `Selecting: Choosing top-${topK} experts with highest scores`
+        return `Selecting: Choosing top-${topK} experts for each token simultaneously`
       case 'routing':
-        return `Routing: Normalizing weights and routing token to selected experts`
+        return `Routing: All ${inputTokens.length} token(s) routed to their experts at once!`
       case 'complete':
-        return 'Complete! Tokens have been routed to experts'
+        return `Complete! ${inputTokens.length} token(s) have been routed in parallel`
     }
   }
 
@@ -177,6 +192,14 @@ function AnimationPanel() {
         </div>
 
         <div className={styles.statusMessage}>{getStepDescription()}</div>
+
+        {/* Load-based timing explanation */}
+        {animationState.currentStep === 'routing' && (
+          <div className={styles.timingInfo}>
+            <strong>⏱️ Realistic Timing:</strong> Base 3s + 0.5s per token on same expert (±10%
+            jitter)
+          </div>
+        )}
       </div>
 
       {animationState.currentStep !== 'idle' && (
@@ -192,7 +215,10 @@ function AnimationPanel() {
             animationState.currentStep === 'routing') && (
             <>
               <div className={styles.detail}>
-                <strong>Current Token:</strong> "{inputTokens[animationState.currentTokenIndex]}"
+                <strong>Batch Size:</strong> {inputTokens.length} token(s) processed simultaneously
+              </div>
+              <div className={styles.detail}>
+                <strong>Tokens:</strong> {inputTokens.map(t => `"${t}"`).join(', ')}
               </div>
 
               {animationState.expertScores.length > 0 && (
@@ -211,7 +237,12 @@ function AnimationPanel() {
                         <div className={styles.expertInfo}>
                           <div className={styles.expertName}>{expert.name}</div>
                           <div className={styles.score}>
-                            Score: {animationState.expertScores[expert.id]?.toFixed(3)}
+                            {animationState.currentStep === 'scoring' 
+                              ? `Avg Score: ${animationState.expertScores[expert.id]?.toFixed(3)}`
+                              : isSelected 
+                                ? '✓ Selected'
+                                : `Score: ${animationState.expertScores[expert.id]?.toFixed(3)}`
+                            }
                           </div>
                         </div>
                       </div>
