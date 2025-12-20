@@ -30,16 +30,22 @@ function ExpertNetwork() {
             const weight = token.routingWeights[index]
             const strokeWidth = 1 + weight * 3 // 1-4px based on weight
 
+            // Add curve based on index to separate overlapping lines
+            const curveOffset = (index - (token.targetExperts.length - 1) / 2) * 15
+            const midX = (tokenPos.x + expert.position.x) / 2 + curveOffset
+            const midY = (tokenPos.y + expert.position.y) / 2 + curveOffset
+
+            // Quadratic bezier curve path
+            const path = `M ${tokenPos.x} ${tokenPos.y} Q ${midX} ${midY} ${expert.position.x} ${expert.position.y}`
+
             return (
-              <line
+              <path
                 key={`${token.id}-${expertId}`}
-                x1={tokenPos.x}
-                y1={tokenPos.y}
-                x2={expert.position.x}
-                y2={expert.position.y}
+                d={path}
                 stroke={expert.color}
                 strokeWidth={strokeWidth}
                 opacity={0.6}
+                fill="none"
                 className={styles.routingLine}
               />
             )

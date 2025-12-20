@@ -127,7 +127,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     const existingPositions = tokens.map(t => t.position)
     const centerX = 450
     const centerY = 325
-    const maxRadius = Math.min(180, 80 + tokens.length * 4)
+    const maxRadius = Math.min(300, 100 + tokens.length * 5)
     const minDistance = 40
     
     let position = { x: centerX, y: centerY }

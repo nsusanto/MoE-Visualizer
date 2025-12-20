@@ -11,7 +11,7 @@ function AnimationPanel() {
   const topK = useMoeStore(state => state.topK)
   const addToken = useSimulationStore(state => state.addToken)
 
-  const MAX_TOKENS = 18
+  const MAX_TOKENS = 20
 
   const [input, setInput] = useState('')
   const setAnimationState = useSimulationStore(state => state.setAnimationState)
