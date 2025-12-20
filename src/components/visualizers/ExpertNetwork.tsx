@@ -1,5 +1,4 @@
 import { useSimulationStore } from '../../store/simulationStore'
-import { calculateTokenPositions } from '../../utils/tokenPositioning'
 import styles from './ExpertNetwork.module.css'
 
 function ExpertNetwork() {
@@ -10,11 +9,6 @@ function ExpertNetwork() {
   // SVG viewBox dimensions
   const width = 900
   const height = 650
-  const centerX = 450
-  const centerY = 325
-
-  // Calculate token positions using clustering algorithm
-  const tokenPositions = calculateTokenPositions(tokens.length, centerX, centerY)
 
   return (
     <div className={styles.container}>
@@ -25,9 +19,9 @@ function ExpertNetwork() {
         className={styles.svg}
       >
         {/* Routing lines (draw first so they're behind tokens and experts) */}
-        {tokens.map((token, tokenIndex) => {
-          const tokenPos = tokenPositions[tokenIndex]
-          if (!tokenPos) return null
+        {tokens.map((token) => {
+          // Use token's stored position (never changes!)
+          const tokenPos = token.position
 
           return token.targetExperts.map((expertId, index) => {
             const expert = experts[expertId]
@@ -136,7 +130,7 @@ function ExpertNetwork() {
               {expert.id + 1}
             </text>
 
-            {/* Load badge (show current processing count) - no animation */}
+            {/* Load badge (show current processing count) */}
             {currentLoad > 0 && (
               <>
                 <circle
@@ -217,10 +211,10 @@ function ExpertNetwork() {
           )
         })}
 
-        {/* Draw tokens in clustered positions */}
-        {tokens.map((token, index) => {
-          const tokenPos = tokenPositions[index]
-          if (!tokenPos) return null
+        {/* Draw tokens in their positions */}
+        {tokens.map((token) => {
+          // Use token's stored position (stable throughout lifetime)
+          const tokenPos = token.position
 
           // Token color based on status
           const tokenColor =

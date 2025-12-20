@@ -122,6 +122,46 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       newToken.content = content
     }
     
+    // Assign a stable position for this token
+    // Find a position that doesn't overlap with existing tokens
+    const existingPositions = tokens.map(t => t.position)
+    const centerX = 450
+    const centerY = 325
+    const maxRadius = Math.min(180, 80 + tokens.length * 4)
+    const minDistance = 40
+    
+    let position = { x: centerX, y: centerY }
+    let attempts = 0
+    const maxAttempts = 100
+    
+    // Try to find a non-overlapping position
+    while (attempts < maxAttempts) {
+      const angle = Math.random() * Math.PI * 2
+      const radius = Math.random() * maxRadius * 0.7
+      const testPos = {
+        x: centerX + Math.cos(angle) * radius,
+        y: centerY + Math.sin(angle) * radius
+      }
+      
+      // Check if this position is far enough from all existing tokens
+      const isTooClose = existingPositions.some(existingPos => {
+        const dx = testPos.x - existingPos.x
+        const dy = testPos.y - existingPos.y
+        const distance = Math.sqrt(dx * dx + dy * dy)
+        return distance < minDistance
+      })
+      
+      if (!isTooClose) {
+        position = testPos
+        break
+      }
+      
+      attempts++
+    }
+    
+    // Assign the stable position to the token
+    newToken.position = position
+    
     // Route the token to experts
     const topK = useMoeStore.getState().topK
     newToken = routeToken(newToken, experts, topK)
