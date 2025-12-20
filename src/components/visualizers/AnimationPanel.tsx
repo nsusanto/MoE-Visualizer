@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useSimulationStore } from '../../store/simulationStore'
 import { useMoeStore } from '../../store/moeStore'
 import { computeGatingScores, selectTopK } from '../../utils/routing'
+import type { Token } from '../../types/moe.types'
 import styles from './AnimationPanel.module.css'
 
 function AnimationPanel() {
@@ -44,7 +45,7 @@ function AnimationPanel() {
 
       // Step 2: Scoring
       setAnimationState({ currentStep: 'scoring' })
-      const mockToken = { content: words[i] } as any
+      const mockToken = { content: words[i] } as Token
       const tokenScores = computeGatingScores(mockToken, experts)
       setAnimationState({ expertScores: tokenScores })
       await sleep(1500)
