@@ -65,7 +65,7 @@ function ExpertDetailPanel({ expert, isOpen, onClose }: ExpertDetailPanelProps) 
             )}
           </div>
           <button className={styles.closeButton} onClick={onClose} aria-label="Close panel">
-            ×
+            X
           </button>
         </div>
 
@@ -89,111 +89,157 @@ function ExpertDetailPanel({ expert, isOpen, onClose }: ExpertDetailPanelProps) 
                 </div>
               </div>
 
-              {/* Single diagram showing batched dimensions */}
+              {/* Neural network diagram with dense connections */}
               <div className={styles.ffnDiagram}>
-                {/* Input Block - narrow (vector: batchSize×512) */}
-                <div className={`${styles.block} ${styles.narrow} ${currentStage === 'input' ? styles.active : ''}`}>
-                  <div className={styles.blockLabel}>Input</div>
-                  <div className={styles.blockDim}>{batchSize} × 512</div>
-                </div>
+                <svg width="280" height="450" viewBox="0 0 280 450">
+                  {/* Layer labels */}
+                  <text x="140" y="15" textAnchor="middle" fill="var(--color-text)" fontSize="10" fontWeight="600">
+                    Input ({batchSize} × 512)
+                  </text>
+                  <text x="140" y="125" textAnchor="middle" fill="var(--color-text)" fontSize="10" fontWeight="600">
+                    W₁ × h ({batchSize} × 2048)
+                  </text>
+                  <text x="140" y="235" textAnchor="middle" fill="var(--color-text)" fontSize="10" fontWeight="600">
+                    ReLU ({batchSize} × 2048)
+                  </text>
+                  <text x="140" y="340" textAnchor="middle" fill="var(--color-text)" fontSize="10" fontWeight="600">
+                    W₂ × h ({batchSize} × 512)
+                  </text>
+                  <text x="140" y="445" textAnchor="middle" fill="var(--color-text)" fontSize="10" fontWeight="600">
+                    Output ({batchSize} × 512)
+                  </text>
 
-                {/* Connection lines: Input → FFN1 */}
-                <svg className={styles.connections} width="100%" height="40" preserveAspectRatio="none">
-                  {Array.from({ length: 10 }).map((_, i) => {
-                    const startX = 20 + (i / 9) * 60
-                    const endX = 5 + (i / 9) * 90
+                  {/* Input layer neurons (8 neurons for 512 dims) */}
+                  {Array.from({ length: 8 }).map((_, i) => {
+                    const x = 80 + i * 17
                     return (
-                      <line
-                        key={i}
-                        x1={`${startX}%`}
-                        y1="0"
-                        x2={`${endX}%`}
-                        y2="100%"
-                        stroke="var(--color-surface-light)"
-                        strokeWidth="1"
-                        opacity="0.4"
+                      <g key={`input-${i}`}>
+                        {/* Connections to FFN1 layer */}
+                        {Array.from({ length: 16 }).map((_, j) => (
+                          <line
+                            key={`conn-in-ffn1-${i}-${j}`}
+                            x1={x}
+                            y1={35}
+                            x2={40 + j * 13}
+                            y2={145}
+                            stroke="var(--color-surface-light)"
+                            strokeWidth="0.3"
+                            opacity="0.15"
+                          />
+                        ))}
+                        <circle
+                          cx={x}
+                          cy={35}
+                          r="5"
+                          fill={currentStage === 'input' ? 'var(--color-primary)' : 'var(--color-text-secondary)'}
+                          opacity={currentStage === 'input' ? 1 : 0.5}
+                        />
+                      </g>
+                    )
+                  })}
+
+                  {/* FFN1 layer neurons (16 neurons for 2048 dims - wider layer) */}
+                  {Array.from({ length: 16 }).map((_, i) => {
+                    const x = 40 + i * 13
+                    return (
+                      <g key={`ffn1-${i}`}>
+                        {/* Connections to ReLU layer */}
+                        {Array.from({ length: 16 }).map((_, j) => (
+                          <line
+                            key={`conn-ffn1-relu-${i}-${j}`}
+                            x1={x}
+                            y1={145}
+                            x2={40 + j * 13}
+                            y2={250}
+                            stroke="var(--color-surface-light)"
+                            strokeWidth="0.3"
+                            opacity="0.1"
+                          />
+                        ))}
+                        <circle
+                          cx={x}
+                          cy={145}
+                          r="5"
+                          fill={currentStage === 'ffn1' ? 'var(--color-primary)' : 'var(--color-text-secondary)'}
+                          opacity={currentStage === 'ffn1' ? 1 : 0.5}
+                        />
+                      </g>
+                    )
+                  })}
+
+                  {/* ReLU layer neurons (16 neurons for 2048 dims) */}
+                  {Array.from({ length: 16 }).map((_, i) => {
+                    const x = 40 + i * 13
+                    return (
+                      <g key={`relu-${i}`}>
+                        {/* Connections to FFN2 layer */}
+                        {Array.from({ length: 8 }).map((_, j) => (
+                          <line
+                            key={`conn-relu-ffn2-${i}-${j}`}
+                            x1={x}
+                            y1={250}
+                            x2={80 + j * 17}
+                            y2={355}
+                            stroke="var(--color-surface-light)"
+                            strokeWidth="0.3"
+                            opacity="0.15"
+                          />
+                        ))}
+                        <circle
+                          cx={x}
+                          cy={250}
+                          r="5"
+                          fill={currentStage === 'relu' ? '#10b981' : 'var(--color-text-secondary)'}
+                          opacity={currentStage === 'relu' ? 1 : 0.5}
+                        />
+                      </g>
+                    )
+                  })}
+
+                  {/* FFN2 layer neurons (8 neurons for 512 dims - narrower) */}
+                  {Array.from({ length: 8 }).map((_, i) => {
+                    const x = 80 + i * 17
+                    return (
+                      <g key={`ffn2-${i}`}>
+                        {/* Connections to Output layer */}
+                        {Array.from({ length: 8 }).map((_, j) => (
+                          <line
+                            key={`conn-ffn2-out-${i}-${j}`}
+                            x1={x}
+                            y1={355}
+                            x2={80 + j * 17}
+                            y2={420}
+                            stroke="var(--color-surface-light)"
+                            strokeWidth="0.3"
+                            opacity="0.1"
+                          />
+                        ))}
+                        <circle
+                          cx={x}
+                          cy={355}
+                          r="5"
+                          fill={currentStage === 'ffn2' ? 'var(--color-primary)' : 'var(--color-text-secondary)'}
+                          opacity={currentStage === 'ffn2' ? 1 : 0.5}
+                        />
+                      </g>
+                    )
+                  })}
+
+                  {/* Output layer neurons (8 neurons for 512 dims) */}
+                  {Array.from({ length: 8 }).map((_, i) => {
+                    const x = 80 + i * 17
+                    return (
+                      <circle
+                        key={`output-${i}`}
+                        cx={x}
+                        cy={420}
+                        r="5"
+                        fill={currentStage === 'output' ? 'var(--color-primary)' : 'var(--color-text-secondary)'}
+                        opacity={currentStage === 'output' ? 1 : 0.5}
                       />
                     )
                   })}
                 </svg>
-
-                {/* FFN1 Block - wide (matrix result: batchSize×2048) */}
-                <div className={`${styles.block} ${styles.wide} ${currentStage === 'ffn1' ? styles.active : ''}`}>
-                  <div className={styles.blockLabel}>W₁ × h</div>
-                  <div className={styles.blockDim}>{batchSize} × 2048</div>
-                  <div className={styles.matrixInfo}>(W₁: 2048×512)</div>
-                </div>
-
-                {/* Connection lines: FFN1 → ReLU */}
-                <svg className={styles.connections} width="100%" height="30" preserveAspectRatio="none">
-                  {Array.from({ length: 8 }).map((_, i) => (
-                    <line
-                      key={i}
-                      x1={`${5 + (i / 7) * 90}%`}
-                      y1="0"
-                      x2={`${5 + (i / 7) * 90}%`}
-                      y2="100%"
-                      stroke="var(--color-surface-light)"
-                      strokeWidth="1"
-                      opacity="0.4"
-                    />
-                  ))}
-                </svg>
-
-                {/* ReLU Block - wide (element-wise: batchSize×2048) */}
-                <div className={`${styles.block} ${styles.wide} ${styles.activation} ${currentStage === 'relu' ? styles.active : ''}`}>
-                  <div className={styles.blockLabel}>ReLU</div>
-                  <div className={styles.blockDim}>{batchSize} × 2048</div>
-                </div>
-
-                {/* Connection lines: ReLU → FFN2 */}
-                <svg className={styles.connections} width="100%" height="40" preserveAspectRatio="none">
-                  {Array.from({ length: 10 }).map((_, i) => {
-                    const startX = 5 + (i / 9) * 90
-                    const endX = 20 + (i / 9) * 60
-                    return (
-                      <line
-                        key={i}
-                        x1={`${startX}%`}
-                        y1="0"
-                        x2={`${endX}%`}
-                        y2="100%"
-                        stroke="var(--color-surface-light)"
-                        strokeWidth="1"
-                        opacity="0.4"
-                      />
-                    )
-                  })}
-                </svg>
-
-                {/* FFN2 Block - narrow (matrix result: batchSize×512) */}
-                <div className={`${styles.block} ${styles.narrow} ${currentStage === 'ffn2' ? styles.active : ''}`}>
-                  <div className={styles.blockLabel}>W₂ × h</div>
-                  <div className={styles.blockDim}>{batchSize} × 512</div>
-                  <div className={styles.matrixInfo}>(W₂: 512×2048)</div>
-                </div>
-
-                {/* Connection lines: FFN2 → Output */}
-                <svg className={styles.connections} width="100%" height="30" preserveAspectRatio="none">
-                  {Array.from({ length: 8 }).map((_, i) => (
-                    <line
-                      key={i}
-                      x1={`${20 + (i / 7) * 60}%`}
-                      y1="0"
-                      x2={`${20 + (i / 7) * 60}%`}
-                      y2="100%"
-                      stroke="var(--color-surface-light)"
-                      strokeWidth="1"
-                      opacity="0.4"
-                    />
-                  ))}
-                </svg>
-
-                {/* Output Block - narrow (vector: batchSize×512) */}
-                <div className={`${styles.block} ${styles.narrow} ${currentStage === 'output' ? styles.active : ''}`}>
-                  <div className={styles.blockLabel}>Output</div>
-                  <div className={styles.blockDim}>{batchSize} × 512</div>
-                </div>
               </div>
             </div>
           )}
