@@ -164,10 +164,16 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: 0;
   width: 100%;
   max-width: 280px;
   padding-top: var(--spacing-xl);
+}
+
+/* Connection lines */
+.connections {
+  width: 100%;
+  display: block;
 }
 
 /* Block styles */

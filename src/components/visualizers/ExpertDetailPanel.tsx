@@ -97,8 +97,25 @@ function ExpertDetailPanel({ expert, isOpen, onClose }: ExpertDetailPanelProps) 
                   <div className={styles.blockDim}>{batchSize} × 512</div>
                 </div>
 
-                {/* Arrow down */}
-                <div className={styles.arrow}>↓</div>
+                {/* Connection lines: Input → FFN1 */}
+                <svg className={styles.connections} width="100%" height="40" preserveAspectRatio="none">
+                  {Array.from({ length: 10 }).map((_, i) => {
+                    const startX = 20 + (i / 9) * 60
+                    const endX = 5 + (i / 9) * 90
+                    return (
+                      <line
+                        key={i}
+                        x1={`${startX}%`}
+                        y1="0"
+                        x2={`${endX}%`}
+                        y2="100%"
+                        stroke="var(--color-surface-light)"
+                        strokeWidth="1"
+                        opacity="0.4"
+                      />
+                    )
+                  })}
+                </svg>
 
                 {/* FFN1 Block - wide (matrix result: batchSize×2048) */}
                 <div className={`${styles.block} ${styles.wide} ${currentStage === 'ffn1' ? styles.active : ''}`}>
@@ -107,8 +124,21 @@ function ExpertDetailPanel({ expert, isOpen, onClose }: ExpertDetailPanelProps) 
                   <div className={styles.matrixInfo}>(W₁: 2048×512)</div>
                 </div>
 
-                {/* Arrow down */}
-                <div className={styles.arrow}>↓</div>
+                {/* Connection lines: FFN1 → ReLU */}
+                <svg className={styles.connections} width="100%" height="30" preserveAspectRatio="none">
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <line
+                      key={i}
+                      x1={`${5 + (i / 7) * 90}%`}
+                      y1="0"
+                      x2={`${5 + (i / 7) * 90}%`}
+                      y2="100%"
+                      stroke="var(--color-surface-light)"
+                      strokeWidth="1"
+                      opacity="0.4"
+                    />
+                  ))}
+                </svg>
 
                 {/* ReLU Block - wide (element-wise: batchSize×2048) */}
                 <div className={`${styles.block} ${styles.wide} ${styles.activation} ${currentStage === 'relu' ? styles.active : ''}`}>
@@ -116,8 +146,25 @@ function ExpertDetailPanel({ expert, isOpen, onClose }: ExpertDetailPanelProps) 
                   <div className={styles.blockDim}>{batchSize} × 2048</div>
                 </div>
 
-                {/* Arrow down */}
-                <div className={styles.arrow}>↓</div>
+                {/* Connection lines: ReLU → FFN2 */}
+                <svg className={styles.connections} width="100%" height="40" preserveAspectRatio="none">
+                  {Array.from({ length: 10 }).map((_, i) => {
+                    const startX = 5 + (i / 9) * 90
+                    const endX = 20 + (i / 9) * 60
+                    return (
+                      <line
+                        key={i}
+                        x1={`${startX}%`}
+                        y1="0"
+                        x2={`${endX}%`}
+                        y2="100%"
+                        stroke="var(--color-surface-light)"
+                        strokeWidth="1"
+                        opacity="0.4"
+                      />
+                    )
+                  })}
+                </svg>
 
                 {/* FFN2 Block - narrow (matrix result: batchSize×512) */}
                 <div className={`${styles.block} ${styles.narrow} ${currentStage === 'ffn2' ? styles.active : ''}`}>
@@ -126,8 +173,21 @@ function ExpertDetailPanel({ expert, isOpen, onClose }: ExpertDetailPanelProps) 
                   <div className={styles.matrixInfo}>(W₂: 512×2048)</div>
                 </div>
 
-                {/* Arrow down */}
-                <div className={styles.arrow}>↓</div>
+                {/* Connection lines: FFN2 → Output */}
+                <svg className={styles.connections} width="100%" height="30" preserveAspectRatio="none">
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <line
+                      key={i}
+                      x1={`${20 + (i / 7) * 60}%`}
+                      y1="0"
+                      x2={`${20 + (i / 7) * 60}%`}
+                      y2="100%"
+                      stroke="var(--color-surface-light)"
+                      strokeWidth="1"
+                      opacity="0.4"
+                    />
+                  ))}
+                </svg>
 
                 {/* Output Block - narrow (vector: batchSize×512) */}
                 <div className={`${styles.block} ${styles.narrow} ${currentStage === 'output' ? styles.active : ''}`}>
