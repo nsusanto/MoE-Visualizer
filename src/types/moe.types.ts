@@ -18,6 +18,9 @@ export interface Expert {
 // Status of a token as it moves through the system
 export type TokenStatus = 'idle' | 'routing' | 'processing' | 'complete'
 
+// FFN processing stage for detailed visualization
+export type FFNStage = 'input' | 'ffn1' | 'relu' | 'ffn2' | 'output' | null
+
 // Represents a token (input) being processed
 export interface Token {
   id: string
@@ -27,6 +30,8 @@ export interface Token {
   routingWeights: number[] // Weight for each target expert (sums to 1.0)
   status: TokenStatus
   timestamp: number // When it was created
+  ffnStage?: FFNStage // Current FFN processing stage (if processing)
+  processingExpertId?: number // Which expert is currently processing this token
 }
 
 // A routing decision made by the gating network
