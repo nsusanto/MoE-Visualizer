@@ -128,7 +128,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     const centerX = 450
     const centerY = 325
     const maxRadius = Math.min(300, 100 + tokens.length * 5)
-    const minDistance = 40
+    const minDistance = 32  // Reduced from 40 to fit smaller circles
     
     let position = { x: centerX, y: centerY }
     let attempts = 0
