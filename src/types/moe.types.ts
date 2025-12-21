@@ -68,24 +68,24 @@ export interface AnimationState {
   isPlaying: boolean
 }
 
-// Expert specializations (for visual variety)
+// Expert specializations (syntactic/word-level patterns)
 export const SPECIALIZATIONS = [
-  'Mathematics',
-  'Language',
-  'Science',
-  'History',
-  'Art',
-  'Music',
-  'Geography',
-  'Logic',
-  'Physics',
-  'Chemistry',
-  'Biology',
-  'Literature',
-  'Philosophy',
-  'Engineering',
-  'Economics',
-  'Psychology',
+  'Punctuation',
+  'Verbs',
+  'Conjunctions',
+  'Visual Descriptions',
+  'Nouns',
+  'Adjectives',
+  'Prepositions',
+  'Numbers & Digits',
+  'Articles',
+  'Pronouns',
+  'Adverbs',
+  'Proper Nouns',
+  'Auxiliary Verbs',
+  'Determiners',
+  'Prefixes & Suffixes',
+  'Special Characters',
 ] as const
 
 // Color palette for experts
