@@ -1,10 +1,28 @@
+import { useState } from 'react'
 import { useSimulationStore } from '../../store/simulationStore'
+import ExpertDetailPanel from './ExpertDetailPanel'
+import { Expert } from '../../types/moe.types'
 import styles from './ExpertNetwork.module.css'
 
 function ExpertNetwork() {
   const experts = useSimulationStore(state => state.experts)
   const tokens = useSimulationStore(state => state.tokens)
   const animationState = useSimulationStore(state => state.animationState)
+
+  // Side panel state
+  const [selectedExpert, setSelectedExpert] = useState<Expert | null>(null)
+  const [isPanelOpen, setIsPanelOpen] = useState(false)
+
+  const handleExpertClick = (expert: Expert) => {
+    setSelectedExpert(expert)
+    setIsPanelOpen(true)
+  }
+
+  const handleClosePanel = () => {
+    setIsPanelOpen(false)
+    // Keep selectedExpert for animation, clear after transition
+    setTimeout(() => setSelectedExpert(null), 300)
+  }
 
   // SVG viewBox dimensions
   const width = 900
@@ -78,7 +96,9 @@ function ExpertNetwork() {
           return (
             <g
               key={expert.id}
-              className={`${styles.expertGroup} ${isSelected ? styles.selected : ''} ${hasLoad ? styles.hasLoad : ''}`}
+              className={`${styles.expertGroup} ${isSelected ? styles.selected : ''}`}
+              onClick={() => handleExpertClick(expert)}
+              style={{ cursor: 'pointer' }}
             >
               {/* Glow effect for active experts */}
               {hasLoad && (
@@ -283,6 +303,13 @@ function ExpertNetwork() {
           )
         })}
       </svg>
+
+      {/* Expert Detail Panel */}
+      <ExpertDetailPanel
+        expert={selectedExpert}
+        isOpen={isPanelOpen}
+        onClose={handleClosePanel}
+      />
     </div>
   )
 }
