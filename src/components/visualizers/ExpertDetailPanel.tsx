@@ -92,26 +92,9 @@ function ExpertDetailPanel({ expert, isOpen, onClose }: ExpertDetailPanelProps) 
               {/* Neural network diagram with dense connections */}
               <div className={styles.ffnDiagram}>
                 <svg width="320" height="550" viewBox="0 0 320 550">
-                  {/* Layer labels */}
-                  <text x="160" y="20" textAnchor="middle" fill="var(--color-text)" fontSize="12" fontWeight="600">
-                    Input ({batchSize} × 512)
-                  </text>
-                  <text x="160" y="165" textAnchor="middle" fill="var(--color-text)" fontSize="12" fontWeight="600">
-                    W₁ × h ({batchSize} × 2048)
-                  </text>
-                  <text x="160" y="300" textAnchor="middle" fill="var(--color-text)" fontSize="12" fontWeight="600">
-                    ReLU ({batchSize} × 2048)
-                  </text>
-                  <text x="160" y="435" textAnchor="middle" fill="var(--color-text)" fontSize="12" fontWeight="600">
-                    W₂ × h ({batchSize} × 512)
-                  </text>
-                  <text x="160" y="540" textAnchor="middle" fill="var(--color-text)" fontSize="12" fontWeight="600">
-                    Output ({batchSize} × 512)
-                  </text>
-
-                  {/* Input layer neurons (8 neurons for 512 dims) */}
+                  {/* Input layer neurons (4 neurons for 512 dims) */}
                   {Array.from({ length: 4 }).map((_, i) => {
-                    const x = 100 + i * 22
+                    const x = 127 + i * 22
                     return (
                       <g key={`input-${i}`}>
                         {/* Connections to FFN1 layer */}
@@ -120,7 +103,7 @@ function ExpertDetailPanel({ expert, isOpen, onClose }: ExpertDetailPanelProps) 
                             key={`conn-in-ffn1-${i}-${j}`}
                             x1={x}
                             y1={50}
-                            x2={35 + j * 16}
+                            x2={40 + j * 16}
                             y2={185}
                             stroke="var(--color-surface-light)"
                             strokeWidth="0.8"
@@ -138,24 +121,27 @@ function ExpertDetailPanel({ expert, isOpen, onClose }: ExpertDetailPanelProps) 
                     )
                   })}
 
+                  {/* Layer label for Input */}
+                  <text x="160" y="35" textAnchor="middle" fill="var(--color-text)" fontSize="12" fontWeight="600">
+                    Input ({batchSize} × 512)
+                  </text>
+
                   {/* FFN1 layer neurons (16 neurons for 2048 dims - wider layer) */}
                   {Array.from({ length: 16 }).map((_, i) => {
-                    const x = 35 + i * 16
+                    const x = 40 + i * 16
                     return (
                       <g key={`ffn1-${i}`}>
-                        {/* Connections to ReLU layer */}
-                        {Array.from({ length: 16 }).map((_, j) => (
-                          <line
-                            key={`conn-ffn1-relu-${i}-${j}`}
-                            x1={x}
-                            y1={185}
-                            x2={35 + j * 16}
-                            y2={320}
-                            stroke="var(--color-surface-light)"
-                            strokeWidth="0.8"
-                            opacity="0.7"
-                          />
-                        ))}
+                        {/* One-to-one connection to ReLU (element-wise operation) */}
+                        <line
+                          key={`conn-ffn1-relu-${i}`}
+                          x1={x}
+                          y1={185}
+                          x2={x}
+                          y2={320}
+                          stroke="var(--color-surface-light)"
+                          strokeWidth="1.5"
+                          opacity="0.6"
+                        />
                         <circle
                           cx={x}
                           cy={185}
@@ -167,9 +153,14 @@ function ExpertDetailPanel({ expert, isOpen, onClose }: ExpertDetailPanelProps) 
                     )
                   })}
 
+                  {/* Layer label for FFN1 */}
+                  <text x="160" y="170" textAnchor="middle" fill="var(--color-text)" fontSize="12" fontWeight="600">
+                    W₁ × h ({batchSize} × 2048)
+                  </text>
+
                   {/* ReLU layer neurons (16 neurons for 2048 dims) */}
                   {Array.from({ length: 16 }).map((_, i) => {
-                    const x = 35 + i * 16
+                    const x = 40 + i * 16
                     return (
                       <g key={`relu-${i}`}>
                         {/* Connections to FFN2 layer */}
@@ -178,7 +169,7 @@ function ExpertDetailPanel({ expert, isOpen, onClose }: ExpertDetailPanelProps) 
                             key={`conn-relu-ffn2-${i}-${j}`}
                             x1={x}
                             y1={320}
-                            x2={100 + j * 22}
+                            x2={83 + j * 22}
                             y2={455}
                             stroke="var(--color-surface-light)"
                             strokeWidth="0.8"
@@ -196,24 +187,27 @@ function ExpertDetailPanel({ expert, isOpen, onClose }: ExpertDetailPanelProps) 
                     )
                   })}
 
+                  {/* Layer label for ReLU */}
+                  <text x="160" y="305" textAnchor="middle" fill="var(--color-text)" fontSize="12" fontWeight="600">
+                    ReLU ({batchSize} × 2048)
+                  </text>
+
                   {/* FFN2 layer neurons (8 neurons for 512 dims - narrower) */}
                   {Array.from({ length: 8 }).map((_, i) => {
-                    const x = 100 + i * 22
+                    const x = 83 + i * 22
                     return (
                       <g key={`ffn2-${i}`}>
-                        {/* Connections to Output layer */}
-                        {Array.from({ length: 8 }).map((_, j) => (
-                          <line
-                            key={`conn-ffn2-out-${i}-${j}`}
-                            x1={x}
-                            y1={455}
-                            x2={100 + j * 22}
-                            y2={515}
-                            stroke="var(--color-surface-light)"
-                            strokeWidth="0.8"
-                            opacity="0.7"
-                          />
-                        ))}
+                        {/* One-to-one connection to Output (identity/residual) */}
+                        <line
+                          key={`conn-ffn2-out-${i}`}
+                          x1={x}
+                          y1={455}
+                          x2={x}
+                          y2={515}
+                          stroke="var(--color-surface-light)"
+                          strokeWidth="1.5"
+                          opacity="0.6"
+                        />
                         <circle
                           cx={x}
                           cy={455}
@@ -225,9 +219,14 @@ function ExpertDetailPanel({ expert, isOpen, onClose }: ExpertDetailPanelProps) 
                     )
                   })}
 
+                  {/* Layer label for FFN2 */}
+                  <text x="160" y="440" textAnchor="middle" fill="var(--color-text)" fontSize="12" fontWeight="600">
+                    W₂ × h ({batchSize} × 512)
+                  </text>
+
                   {/* Output layer neurons (8 neurons for 512 dims) */}
                   {Array.from({ length: 8 }).map((_, i) => {
-                    const x = 100 + i * 22
+                    const x = 83 + i * 22
                     return (
                       <circle
                         key={`output-${i}`}
@@ -239,6 +238,11 @@ function ExpertDetailPanel({ expert, isOpen, onClose }: ExpertDetailPanelProps) 
                       />
                     )
                   })}
+
+                  {/* Layer label for Output */}
+                  <text x="160" y="540" textAnchor="middle" fill="var(--color-text)" fontSize="12" fontWeight="600">
+                    Output ({batchSize} × 512)
+                  </text>
                 </svg>
               </div>
             </div>
