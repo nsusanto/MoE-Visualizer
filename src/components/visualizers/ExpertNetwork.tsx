@@ -91,7 +91,7 @@ function ExpertNetwork() {
 
           // Glow intensity based on load
           const glowOpacity = Math.min(0.3 + currentLoad * 0.15, 1)
-          const glowRadius = 10 + currentLoad * 3
+          const glowRadius = 8 + currentLoad * 2
 
           return (
             <g
@@ -105,7 +105,7 @@ function ExpertNetwork() {
                 <circle
                   cx={expert.position.x}
                   cy={expert.position.y}
-                  r={30 + glowRadius}
+                  r={24 + glowRadius}
                   fill={expert.color}
                   opacity={glowOpacity * 0.3}
                   className={styles.expertGlow}
@@ -116,7 +116,7 @@ function ExpertNetwork() {
               <circle
                 cx={expert.position.x}
                 cy={expert.position.y}
-                r={32}
+                r={26}
                 fill="var(--color-surface)"
                 opacity={1}
               />
@@ -125,7 +125,7 @@ function ExpertNetwork() {
               <circle
                 cx={expert.position.x}
                 cy={expert.position.y}
-                r={30}
+                r={24}
                 fill={expert.color}
                 className={styles.expertCircle}
                 opacity={isSelected ? 1 : hasLoad ? 1 : 0.9}
@@ -135,10 +135,10 @@ function ExpertNetwork() {
               <circle
                 cx={expert.position.x}
                 cy={expert.position.y}
-                r={30}
+                r={24}
                 fill="none"
                 stroke={expert.color}
-                strokeWidth={isSelected ? 4 : 2}
+                strokeWidth={isSelected ? 3 : 2}
                 className={styles.expertOutline}
               />
 
@@ -150,7 +150,7 @@ function ExpertNetwork() {
               dominantBaseline="middle"
               className={styles.expertLabel}
               fill="white"
-              fontSize={14}
+              fontSize={11}
               fontWeight="600"
             >
               {expert.id + 1}
@@ -160,14 +160,14 @@ function ExpertNetwork() {
             {currentLoad > 0 && (
               <>
                 <circle
-                  cx={expert.position.x + 20}
-                  cy={expert.position.y - 20}
-                  r={10}
+                  cx={expert.position.x + 16}
+                  cy={expert.position.y - 16}
+                  r={8}
                   fill="#10b981"
                 />
                 <text
-                  x={expert.position.x + 20}
-                  y={expert.position.y - 20}
+                  x={expert.position.x + 16}
+                  y={expert.position.y - 16}
                   textAnchor="middle"
                   dominantBaseline="middle"
                   fill="white"
@@ -182,11 +182,11 @@ function ExpertNetwork() {
               {/* Expert name below circle */}
               <text
                 x={expert.position.x}
-                y={expert.position.y + 45}
+                y={expert.position.y + 36}
                 textAnchor="middle"
                 className={styles.expertName}
                 fill="#f1f5f9"
-                fontSize={11}
+                fontSize={9}
               >
                 {expert.name}
               </text>
@@ -194,11 +194,11 @@ function ExpertNetwork() {
               {/* Specialization */}
               <text
                 x={expert.position.x}
-                y={expert.position.y + 60}
+                y={expert.position.y + 48}
                 textAnchor="middle"
                 className={styles.expertSpec}
                 fill="#94a3b8"
-                fontSize={9}
+                fontSize={8}
               >
                 {expert.specialization}
               </text>
@@ -207,11 +207,11 @@ function ExpertNetwork() {
               {currentLoad > 0 && (
                 <text
                   x={expert.position.x}
-                  y={expert.position.y + 75}
+                  y={expert.position.y + 60}
                   textAnchor="middle"
                   className={styles.expertLoad}
                   fill="#10b981"
-                  fontSize={8}
+                  fontSize={7}
                   fontWeight="600"
                 >
                   +{(currentLoad * 0.5).toFixed(1)}s delay
@@ -222,11 +222,11 @@ function ExpertNetwork() {
             {isScoring && (
               <text
                 x={expert.position.x}
-                y={expert.position.y + 75}
+                y={expert.position.y + 60}
                 textAnchor="middle"
                 className={styles.expertScore}
                 fill={isSelected ? '#10b981' : '#94a3b8'}
-                fontSize={9}
+                fontSize={8}
                 fontWeight="700"
                 fontFamily="monospace"
               >
@@ -258,7 +258,7 @@ function ExpertNetwork() {
               <circle
                 cx={tokenPos.x}
                 cy={tokenPos.y}
-                r={17}
+                r={14}
                 fill="var(--color-surface)"
                 opacity={1}
               />
@@ -267,7 +267,7 @@ function ExpertNetwork() {
               <circle
                 cx={tokenPos.x}
                 cy={tokenPos.y}
-                r={15}
+                r={12}
                 fill={tokenColor}
                 className={styles.tokenCircle}
                 opacity={0.9}
@@ -277,7 +277,7 @@ function ExpertNetwork() {
               <circle
                 cx={tokenPos.x}
                 cy={tokenPos.y}
-                r={15}
+                r={12}
                 fill="none"
                 stroke={tokenColor}
                 strokeWidth={2}
@@ -292,11 +292,11 @@ function ExpertNetwork() {
                 dominantBaseline="middle"
                 className={styles.tokenLabel}
                 fill="white"
-                fontSize={10}
+                fontSize={8}
                 fontWeight="700"
               >
-                {token.content.length > 8
-                  ? token.content.substring(0, 8)
+                {token.content.length > 6
+                  ? token.content.substring(0, 6)
                   : token.content}
               </text>
             </g>
