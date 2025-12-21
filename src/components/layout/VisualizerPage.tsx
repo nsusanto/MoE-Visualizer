@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useMoeStore } from '../../store/moeStore'
+import { useSimulationStore } from '../../store/simulationStore'
 import ExpertNetwork from '../visualizers/ExpertNetwork'
 import AnimationPanel from '../visualizers/AnimationPanel'
 import StatusLegend from '../common/StatusLegend'
@@ -14,6 +15,13 @@ function VisualizerPage() {
   const setTopK = useMoeStore(state => state.setTopK)
   const setAnimationSpeed = useMoeStore(state => state.setAnimationSpeed)
   const resetConfig = useMoeStore(state => state.resetConfig)
+
+  // Check if we should disable controls (tokens exist or animation running)
+  const tokens = useSimulationStore(state => state.tokens)
+  const animationState = useSimulationStore(state => state.animationState)
+  const hasActiveTokens = tokens.length > 0
+  const isAnimating = animationState.isPlaying || animationState.currentStep !== 'idle'
+  const shouldDisableControls = hasActiveTokens || isAnimating
 
   return (
     <div className={styles.container}>
@@ -64,6 +72,7 @@ function VisualizerPage() {
                   max="16"
                   value={numExperts}
                   onChange={e => setNumExperts(Number(e.target.value))}
+                  disabled={shouldDisableControls}
                 />
                 <span className={styles.value}>{numExperts}</span>
               </div>
@@ -75,6 +84,7 @@ function VisualizerPage() {
                   max={numExperts}
                   value={topK}
                   onChange={e => setTopK(Number(e.target.value))}
+                  disabled={shouldDisableControls}
                 />
                 <span className={styles.value}>{topK}</span>
               </div>
@@ -92,6 +102,11 @@ function VisualizerPage() {
             </div>
 
             <div className={styles.configSummary}>
+              {shouldDisableControls && (
+                <p className={styles.warningText}>
+                  ⚠️ Controls locked while tokens are active. Clear all tokens to adjust settings.
+                </p>
+              )}
               <p>
                 Current Configuration: Each token will be routed to{' '}
                 <strong>{topK}</strong> out of <strong>{numExperts}</strong> experts
