@@ -266,6 +266,23 @@
   transform: scale(1.05);
 }
 
+.controlGroup input[type='range']:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.controlGroup input[type='range']:disabled::-webkit-slider-thumb {
+  cursor: not-allowed;
+  transform: none;
+  opacity: 0.6;
+}
+
+.controlGroup input[type='range']:disabled::-moz-range-thumb {
+  cursor: not-allowed;
+  transform: none;
+  opacity: 0.6;
+}
+
 .controlGroup input[type='range']::-moz-range-thumb {
   width: 18px;
   height: 18px;
@@ -322,6 +339,20 @@
 .configSummary strong {
   color: var(--color-accent);
   font-weight: 600;
+}
+
+.warningText {
+  color: #f59e0b !important;
+  font-weight: 600 !important;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-sm);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: rgba(245, 158, 11, 0.1);
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  width: 100%;
 }
 
 .resetButton {
