@@ -139,6 +139,20 @@ function AnimationPanel() {
             type="text"
             value={input}
             onChange={e => setInput(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault()
+                // Check if button would be enabled
+                if (
+                  animationState.currentStep === 'idle' &&
+                  input.trim() &&
+                  tokens.length < MAX_TOKENS &&
+                  !wouldExceedLimit
+                ) {
+                  runAnimation()
+                }
+              }
+            }}
             placeholder="e.g., hello world from MoE"
             className={styles.input}
             disabled={animationState.currentStep !== 'idle'}
