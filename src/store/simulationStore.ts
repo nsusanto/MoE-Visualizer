@@ -202,11 +202,25 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     
     // Auto-progress token through states
     setTimeout(() => {
-      get().updateToken(tokenId, { status: 'processing' })
+      get().updateToken(tokenId, { 
+        status: 'processing',
+        ffnStage: 'input'
+      })
+      
+      // Progress through FFN stages
+      const ffnStages: Array<'input' | 'ffn1' | 'relu' | 'ffn2' | 'output'> = 
+        ['input', 'ffn1', 'relu', 'ffn2', 'output']
+      const stageTime = processingTime / ffnStages.length
+      
+      ffnStages.forEach((stage, index) => {
+        setTimeout(() => {
+          get().updateToken(tokenId, { ffnStage: stage })
+        }, stageTime * index)
+      })
       
       // After processing, mark as complete and remove
       setTimeout(() => {
-        get().updateToken(tokenId, { status: 'complete' })
+        get().updateToken(tokenId, { status: 'complete', ffnStage: null })
         
         // Increment expert load and deactivate
         newToken.targetExperts.forEach(expertId => {
