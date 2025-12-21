@@ -16,6 +16,13 @@ function ExpertDetailPanel({ expert, isOpen, onClose }: ExpertDetailPanelProps) 
   const activeTokens = tokens.filter(
     t => t.status === 'processing' && t.targetExperts.includes(expert.id)
   )
+  
+  // Batch size for matrix dimensions
+  const batchSize = activeTokens.length
+  
+  // Get the current stage - use the earliest stage if multiple tokens
+  // (In reality they'd all be at the same stage in a batch, but this is simplified)
+  const currentStage = activeTokens.length > 0 ? activeTokens[0].ffnStage : null
 
   return (
     <>
@@ -33,7 +40,7 @@ function ExpertDetailPanel({ expert, isOpen, onClose }: ExpertDetailPanelProps) 
             <h2 className={styles.title}>FFN Computation</h2>
             {activeTokens.length > 0 && (
               <div className={styles.processingInfo}>
-                Processing {activeTokens.length} token{activeTokens.length !== 1 ? 's' : ''}
+                Batch processing {activeTokens.length} token{activeTokens.length !== 1 ? 's' : ''}
               </div>
             )}
           </div>
@@ -42,7 +49,7 @@ function ExpertDetailPanel({ expert, isOpen, onClose }: ExpertDetailPanelProps) 
           </button>
         </div>
 
-        {/* Content Area - FFN Diagram(s) */}
+        {/* Content Area - FFN Diagram */}
         <div className={styles.content}>
           {activeTokens.length === 0 ? (
             <div className={styles.idleMessage}>
@@ -50,59 +57,64 @@ function ExpertDetailPanel({ expert, isOpen, onClose }: ExpertDetailPanelProps) 
             </div>
           ) : (
             <div className={styles.diagramsContainer}>
-              {activeTokens.map((token) => (
-                <div key={token.id} className={styles.tokenDiagram}>
-                  <div className={styles.tokenHeader}>
-                    <span className={styles.tokenName}>"{token.content}"</span>
-                  </div>
-                  
-                  <div className={styles.ffnDiagram}>
-                    {/* Input Block - narrow (vector: 512x1) */}
-                    <div className={`${styles.block} ${styles.narrow} ${token.ffnStage === 'input' ? styles.active : ''}`}>
-                      <div className={styles.blockLabel}>Input</div>
-                      <div className={styles.blockDim}>512 × 1</div>
-                    </div>
-
-                    {/* Arrow down */}
-                    <div className={styles.arrow}>↓</div>
-
-                    {/* FFN1 Block - wide (matrix result: 2048x1) */}
-                    <div className={`${styles.block} ${styles.wide} ${token.ffnStage === 'ffn1' ? styles.active : ''}`}>
-                      <div className={styles.blockLabel}>W₁ × h</div>
-                      <div className={styles.blockDim}>2048 × 1</div>
-                      <div className={styles.matrixInfo}>(W₁: 2048×512)</div>
-                    </div>
-
-                    {/* Arrow down */}
-                    <div className={styles.arrow}>↓</div>
-
-                    {/* ReLU Block - wide (element-wise: 2048x1) */}
-                    <div className={`${styles.block} ${styles.wide} ${styles.activation} ${token.ffnStage === 'relu' ? styles.active : ''}`}>
-                      <div className={styles.blockLabel}>ReLU</div>
-                      <div className={styles.blockDim}>2048 × 1</div>
-                    </div>
-
-                    {/* Arrow down */}
-                    <div className={styles.arrow}>↓</div>
-
-                    {/* FFN2 Block - narrow (matrix result: 512x1) */}
-                    <div className={`${styles.block} ${styles.narrow} ${token.ffnStage === 'ffn2' ? styles.active : ''}`}>
-                      <div className={styles.blockLabel}>W₂ × h</div>
-                      <div className={styles.blockDim}>512 × 1</div>
-                      <div className={styles.matrixInfo}>(W₂: 512×2048)</div>
-                    </div>
-
-                    {/* Arrow down */}
-                    <div className={styles.arrow}>↓</div>
-
-                    {/* Output Block - narrow (vector: 512x1) */}
-                    <div className={`${styles.block} ${styles.narrow} ${token.ffnStage === 'output' ? styles.active : ''}`}>
-                      <div className={styles.blockLabel}>Output</div>
-                      <div className={styles.blockDim}>512 × 1</div>
-                    </div>
-                  </div>
+              {/* Batch info */}
+              <div className={styles.batchInfo}>
+                <div className={styles.batchLabel}>Current Batch:</div>
+                <div className={styles.tokenList}>
+                  {activeTokens.map((token, idx) => (
+                    <span key={token.id} className={styles.tokenBadge}>
+                      {token.content}
+                    </span>
+                  ))}
                 </div>
-              ))}
+              </div>
+
+              {/* Single diagram showing batched dimensions */}
+              <div className={styles.ffnDiagram}>
+                {/* Input Block - narrow (vector: batchSize×512) */}
+                <div className={`${styles.block} ${styles.narrow} ${currentStage === 'input' ? styles.active : ''}`}>
+                  <div className={styles.blockLabel}>Input</div>
+                  <div className={styles.blockDim}>{batchSize} × 512</div>
+                </div>
+
+                {/* Arrow down */}
+                <div className={styles.arrow}>↓</div>
+
+                {/* FFN1 Block - wide (matrix result: batchSize×2048) */}
+                <div className={`${styles.block} ${styles.wide} ${currentStage === 'ffn1' ? styles.active : ''}`}>
+                  <div className={styles.blockLabel}>W₁ × h</div>
+                  <div className={styles.blockDim}>{batchSize} × 2048</div>
+                  <div className={styles.matrixInfo}>(W₁: 2048×512)</div>
+                </div>
+
+                {/* Arrow down */}
+                <div className={styles.arrow}>↓</div>
+
+                {/* ReLU Block - wide (element-wise: batchSize×2048) */}
+                <div className={`${styles.block} ${styles.wide} ${styles.activation} ${currentStage === 'relu' ? styles.active : ''}`}>
+                  <div className={styles.blockLabel}>ReLU</div>
+                  <div className={styles.blockDim}>{batchSize} × 2048</div>
+                </div>
+
+                {/* Arrow down */}
+                <div className={styles.arrow}>↓</div>
+
+                {/* FFN2 Block - narrow (matrix result: batchSize×512) */}
+                <div className={`${styles.block} ${styles.narrow} ${currentStage === 'ffn2' ? styles.active : ''}`}>
+                  <div className={styles.blockLabel}>W₂ × h</div>
+                  <div className={styles.blockDim}>{batchSize} × 512</div>
+                  <div className={styles.matrixInfo}>(W₂: 512×2048)</div>
+                </div>
+
+                {/* Arrow down */}
+                <div className={styles.arrow}>↓</div>
+
+                {/* Output Block - narrow (vector: batchSize×512) */}
+                <div className={`${styles.block} ${styles.narrow} ${currentStage === 'output' ? styles.active : ''}`}>
+                  <div className={styles.blockLabel}>Output</div>
+                  <div className={styles.blockDim}>{batchSize} × 512</div>
+                </div>
+              </div>
             </div>
           )}
         </div>
