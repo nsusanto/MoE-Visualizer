@@ -20,9 +20,29 @@ function ExpertDetailPanel({ expert, isOpen, onClose }: ExpertDetailPanelProps) 
   // Batch size for matrix dimensions
   const batchSize = activeTokens.length
   
-  // Get the current stage - use the earliest stage if multiple tokens
-  // (In reality they'd all be at the same stage in a batch, but this is simplified)
-  const currentStage = activeTokens.length > 0 ? activeTokens[0].ffnStage : null
+  // Get the most advanced stage (so animation never goes backwards)
+  const stageOrder: Record<string, number> = {
+    'input': 1,
+    'ffn1': 2,
+    'relu': 3,
+    'ffn2': 4,
+    'output': 5
+  }
+  
+  let currentStage: 'input' | 'ffn1' | 'relu' | 'ffn2' | 'output' | null = null
+  if (activeTokens.length > 0) {
+    // Find the most advanced stage among all tokens
+    let maxStage = 0
+    activeTokens.forEach(token => {
+      if (token.ffnStage) {
+        const stageNum = stageOrder[token.ffnStage] || 0
+        if (stageNum > maxStage) {
+          maxStage = stageNum
+          currentStage = token.ffnStage
+        }
+      }
+    })
+  }
 
   return (
     <>

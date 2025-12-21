@@ -207,20 +207,19 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
         ffnStage: 'input'
       })
       
-      // Progress through FFN stages
-      const ffnStages: Array<'input' | 'ffn1' | 'relu' | 'ffn2' | 'output'> = 
-        ['input', 'ffn1', 'relu', 'ffn2', 'output']
-      const stageTime = processingTime / ffnStages.length
-      
+      // Progress through FFN stages once, then stop at output
+      const ffnStages: Array<'ffn1' | 'relu' | 'ffn2' | 'output'> = 
+        ['ffn1', 'relu', 'ffn2', 'output']
+      const stageTime = processingTime / (ffnStages.length + 1)
       ffnStages.forEach((stage, index) => {
         setTimeout(() => {
           get().updateToken(tokenId, { ffnStage: stage })
-        }, stageTime * index)
+        }, stageTime * (index + 1))
       })
       
       // After processing, mark as complete and remove
       setTimeout(() => {
-        get().updateToken(tokenId, { status: 'complete', ffnStage: null })
+        get().updateToken(tokenId, { status: 'complete', ffnStage: 'output' })
         
         // Increment expert load and deactivate
         newToken.targetExperts.forEach(expertId => {
@@ -233,8 +232,8 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
           get().removeToken(tokenId)
           get().updateStats()
         }, 1000) // Show complete state for 1 second
-      }, processingTime) // Variable processing time based on load!
-    }, 100) // Small delay before processing starts
+      }, processingTime)
+    }, 100)
   },
 
   // Update a specific token
