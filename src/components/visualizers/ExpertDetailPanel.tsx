@@ -18,8 +18,7 @@ function ExpertDetailPanel({ expert, isOpen, onClose }: ExpertDetailPanelProps) 
     t => t.status === 'processing' && t.targetExperts.includes(expert.id)
   )
   
-  // Batch size for matrix dimensions
-  const batchSize = activeTokens.length
+  const batchSize = activeTokens.length > 0 ? activeTokens.length : 1
   
   // Get the most advanced stage (so animation never goes backwards)
   const stageOrder: Record<string, number> = {
@@ -72,33 +71,16 @@ function ExpertDetailPanel({ expert, isOpen, onClose }: ExpertDetailPanelProps) 
 
         {/* Content Area - FFN Diagram */}
         <div className={styles.content}>
-          {activeTokens.length === 0 ? (
-            <div className={styles.idleMessage}>
-              No tokens currently processing
-            </div>
-          ) : (
-            <div className={styles.diagramsContainer}>
-              {/* Batch info */}
-              <div className={styles.batchInfo}>
-                <div className={styles.batchLabel}>Current Batch:</div>
-                <div className={styles.tokenList}>
-                  {activeTokens.map((token) => (
-                    <span key={token.id} className={styles.tokenBadge}>
-                      {token.content}
-                    </span>
-                  ))}
-                </div>
-              </div>
+          <div className={styles.diagramsContainer}>
 
               {/* Neural network diagram with dense connections */}
               <div className={styles.ffnDiagram}>
                 <svg width="320" height="550" viewBox="0 0 320 550">
-                  {/* Input layer neurons (4 neurons for 512 dims) */}
+                  {/* Input to FFN1 connections */}
                   {Array.from({ length: 4 }).map((_, i) => {
                     const x = 127 + i * 22
                     return (
-                      <g key={`input-${i}`}>
-                        {/* Connections to FFN1 layer */}
+                      <g key={`input-conn-${i}`}>
                         {Array.from({ length: 16 }).map((_, j) => (
                           <line
                             key={`conn-in-ffn1-${i}-${j}`}
@@ -111,6 +93,78 @@ function ExpertDetailPanel({ expert, isOpen, onClose }: ExpertDetailPanelProps) 
                             opacity="0.7"
                           />
                         ))}
+                      </g>
+                    )
+                  })}
+
+                  {/* FFN1 to ReLU connections (one-to-one) */}
+                  {Array.from({ length: 16 }).map((_, i) => {
+                    const x = 40 + i * 16
+                    return (
+                      <line
+                        key={`conn-ffn1-relu-${i}`}
+                        x1={x}
+                        y1={185}
+                        x2={x}
+                        y2={320}
+                        stroke="var(--color-surface-light)"
+                        strokeWidth="1.5"
+                        opacity="0.6"
+                      />
+                    )
+                  })}
+
+                  {/* ReLU to FFN2 connections */}
+                  {Array.from({ length: 16 }).map((_, i) => {
+                    const x = 40 + i * 16
+                    return (
+                      <g key={`relu-conn-${i}`}>
+                        {Array.from({ length: 8 }).map((_, j) => (
+                          <line
+                            key={`conn-relu-ffn2-${i}-${j}`}
+                            x1={x}
+                            y1={320}
+                            x2={83 + j * 22}
+                            y2={455}
+                            stroke="var(--color-surface-light)"
+                            strokeWidth="0.8"
+                            opacity="0.7"
+                          />
+                        ))}
+                      </g>
+                    )
+                  })}
+
+                  {/* FFN2 to Output connections (one-to-one) */}
+                  {Array.from({ length: 8 }).map((_, i) => {
+                    const x = 83 + i * 22
+                    return (
+                      <line
+                        key={`conn-ffn2-out-${i}`}
+                        x1={x}
+                        y1={455}
+                        x2={x}
+                        y2={515}
+                        stroke="var(--color-surface-light)"
+                        strokeWidth="1.5"
+                        opacity="0.6"
+                      />
+                    )
+                  })}
+
+                  {/* Input layer neurons */}
+                  {Array.from({ length: 4 }).map((_, i) => {
+                    const x = 127 + i * 22
+                    return (
+                      <g key={`input-${i}`}>
+                        {/* Background circle to block lines */}
+                        <circle
+                          cx={x}
+                          cy={50}
+                          r="8"
+                          fill="var(--color-surface)"
+                        />
+                        {/* Neuron circle */}
                         <circle
                           cx={x}
                           cy={50}
@@ -127,22 +181,19 @@ function ExpertDetailPanel({ expert, isOpen, onClose }: ExpertDetailPanelProps) 
                     Input ({batchSize} × 512)
                   </text>
 
-                  {/* FFN1 layer neurons (16 neurons for 2048 dims - wider layer) */}
+                  {/* FFN1 layer neurons */}
                   {Array.from({ length: 16 }).map((_, i) => {
                     const x = 40 + i * 16
                     return (
                       <g key={`ffn1-${i}`}>
-                        {/* One-to-one connection to ReLU (element-wise operation) */}
-                        <line
-                          key={`conn-ffn1-relu-${i}`}
-                          x1={x}
-                          y1={185}
-                          x2={x}
-                          y2={320}
-                          stroke="var(--color-surface-light)"
-                          strokeWidth="1.5"
-                          opacity="0.6"
+                        {/* Background circle to block lines */}
+                        <circle
+                          cx={x}
+                          cy={185}
+                          r="8"
+                          fill="var(--color-surface)"
                         />
+                        {/* Neuron circle */}
                         <circle
                           cx={x}
                           cy={185}
@@ -159,24 +210,19 @@ function ExpertDetailPanel({ expert, isOpen, onClose }: ExpertDetailPanelProps) 
                     W₁ × h ({batchSize} × 2048)
                   </text>
 
-                  {/* ReLU layer neurons (16 neurons for 2048 dims) */}
+                  {/* ReLU layer neurons */}
                   {Array.from({ length: 16 }).map((_, i) => {
                     const x = 40 + i * 16
                     return (
                       <g key={`relu-${i}`}>
-                        {/* Connections to FFN2 layer */}
-                        {Array.from({ length: 8 }).map((_, j) => (
-                          <line
-                            key={`conn-relu-ffn2-${i}-${j}`}
-                            x1={x}
-                            y1={320}
-                            x2={83 + j * 22}
-                            y2={455}
-                            stroke="var(--color-surface-light)"
-                            strokeWidth="0.8"
-                            opacity="0.7"
-                          />
-                        ))}
+                        {/* Background circle to block lines */}
+                        <circle
+                          cx={x}
+                          cy={320}
+                          r="8"
+                          fill="var(--color-surface)"
+                        />
+                        {/* Neuron circle */}
                         <circle
                           cx={x}
                           cy={320}
@@ -193,22 +239,19 @@ function ExpertDetailPanel({ expert, isOpen, onClose }: ExpertDetailPanelProps) 
                     ReLU ({batchSize} × 2048)
                   </text>
 
-                  {/* FFN2 layer neurons (8 neurons for 512 dims - narrower) */}
+                  {/* FFN2 layer neurons */}
                   {Array.from({ length: 8 }).map((_, i) => {
                     const x = 83 + i * 22
                     return (
                       <g key={`ffn2-${i}`}>
-                        {/* One-to-one connection to Output (identity/residual) */}
-                        <line
-                          key={`conn-ffn2-out-${i}`}
-                          x1={x}
-                          y1={455}
-                          x2={x}
-                          y2={515}
-                          stroke="var(--color-surface-light)"
-                          strokeWidth="1.5"
-                          opacity="0.6"
+                        {/* Background circle to block lines */}
+                        <circle
+                          cx={x}
+                          cy={455}
+                          r="8"
+                          fill="var(--color-surface)"
                         />
+                        {/* Neuron circle */}
                         <circle
                           cx={x}
                           cy={455}
@@ -225,18 +268,27 @@ function ExpertDetailPanel({ expert, isOpen, onClose }: ExpertDetailPanelProps) 
                     W₂ × h ({batchSize} × 512)
                   </text>
 
-                  {/* Output layer neurons (8 neurons for 512 dims) */}
+                  {/* Output layer neurons */}
                   {Array.from({ length: 8 }).map((_, i) => {
                     const x = 83 + i * 22
                     return (
-                      <circle
-                        key={`output-${i}`}
-                        cx={x}
-                        cy={515}
-                        r="7"
-                        fill={currentStage === 'output' ? 'var(--color-primary)' : 'var(--color-text-secondary)'}
-                        opacity={currentStage === 'output' ? 1 : 0.5}
-                      />
+                      <g key={`output-${i}`}>
+                        {/* Background circle to block lines */}
+                        <circle
+                          cx={x}
+                          cy={515}
+                          r="8"
+                          fill="var(--color-surface)"
+                        />
+                        {/* Neuron circle */}
+                        <circle
+                          cx={x}
+                          cy={515}
+                          r="7"
+                          fill={currentStage === 'output' ? 'var(--color-primary)' : 'var(--color-text-secondary)'}
+                          opacity={currentStage === 'output' ? 1 : 0.5}
+                        />
+                      </g>
                     )
                   })}
 
@@ -245,9 +297,27 @@ function ExpertDetailPanel({ expert, isOpen, onClose }: ExpertDetailPanelProps) 
                     Output ({batchSize} × 512)
                   </text>
                 </svg>
+                    {activeTokens.length > 0 && (
+                  <div className={styles.batchInfo}>
+                    <div className={styles.batchLabel}>Current Batch:</div>
+                    <div className={styles.tokenList}>
+                      {activeTokens.map((token) => (
+                        <span key={token.id} className={styles.tokenBadge}>
+                          {token.content}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Show idle message when no tokens */}
+                {activeTokens.length === 0 && (
+                  <div className={styles.idleMessage}>
+                    No tokens currently processing
+                  </div>
+                )}
               </div>
             </div>
-          )}
         </div>
       </div>
     </>
