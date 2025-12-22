@@ -68,6 +68,7 @@ const initialAnimationState: AnimationState = {
   currentTokenIndex: -1,
   expertScores: [],
   selectedExperts: [],
+  allSelectedExperts: [],
   isPlaying: false,
 }
 

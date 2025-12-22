@@ -79,7 +79,7 @@ function ExpertNetwork() {
               animationState.currentStep === 'selecting' ||
               animationState.currentStep === 'routing')
           const isSelected =
-            isScoring && animationState.selectedExperts.includes(expert.id)
+            isScoring && animationState.allSelectedExperts.includes(expert.id)
           const score = isScoring ? animationState.expertScores[expert.id] : 0
 
           // Calculate current load for this expert

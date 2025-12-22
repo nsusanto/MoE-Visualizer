@@ -34,12 +34,12 @@ function AnimationPanel() {
 
     setAnimationState({ isPlaying: true })
 
-    // Step 1: Tokenizing (show all tokens being split)
+    // Step 1: Tokenizing
     setAnimationState({ currentStep: 'tokenizing' })
     setInputTokens(words)
     await sleep(2000)
 
-    // Step 2: Scoring (ALL tokens scored in parallel - like real MoE!)
+    // Step 2: Scoring
     setAnimationState({ currentStep: 'scoring' })
     // Compute scores for all tokens at once (batch processing)
     const allTokenScores: number[][] = []
@@ -48,12 +48,9 @@ function AnimationPanel() {
       const tokenScores = computeGatingScores(mockToken, experts)
       allTokenScores.push(tokenScores)
     }
-    // Show aggregate scores (average across all tokens)
-    const aggregateScores = experts.map((_, expertIdx) => {
-      const sum = allTokenScores.reduce((acc, scores) => acc + scores[expertIdx], 0)
-      return sum / allTokenScores.length
-    })
-    setAnimationState({ expertScores: aggregateScores })
+    // Show scores for FIRST token only (for visualization clarity)
+    const firstTokenScores = allTokenScores[0] || []
+    setAnimationState({ expertScores: firstTokenScores })
     await sleep(2000)
 
     // Step 3: Selecting Top-K (for each token in parallel)
@@ -63,9 +60,14 @@ function AnimationPanel() {
       const topExperts = selectTopK(tokenScores, topK)
       allSelectedExperts.push(topExperts)
     }
-    // Show all unique experts that will be used
+    // Show selected experts for FIRST token only (for histogram visualization)
+    const firstTokenSelectedExperts = allSelectedExperts[0] || []
+    // Show all unique experts across all tokens (for main view highlighting)
     const allUniqueExperts = [...new Set(allSelectedExperts.flat())]
-    setAnimationState({ selectedExperts: allUniqueExperts })
+    setAnimationState({ 
+      selectedExperts: firstTokenSelectedExperts,
+      allSelectedExperts: allUniqueExperts
+    })
     await sleep(2000)
 
     // Step 4: Routing (all tokens routed simultaneously)
@@ -184,9 +186,52 @@ function AnimationPanel() {
       <div className={styles.statusSection}>
         {/* Routing Histogram - shows expert scores and top-K selection */}
         <div className={styles.routingHistogram}>
-          {/* Empty container - will populate later */}
-          <div className={styles.histogramPlaceholder}>
-            Routing histogram will appear here
+          <div className={styles.histogramContent}>
+            <h4 className={styles.histogramTitle}>
+              {animationState.expertScores.length > 0 
+                ? `Router Scores for "${inputTokens[0] || 'token'}" (Softmax)`
+                : 'Router Scores (Softmax)'}
+              {animationState.currentStep === 'selecting' && animationState.expertScores.length > 0 && ` - Top-${topK} Selected`}
+            </h4>
+            <div className={styles.barsContainer}>
+              {experts.map((expert, idx) => {
+                const score = animationState.expertScores[idx] || 0
+                const isSelected = animationState.selectedExperts.includes(idx)
+                const showSelection = ['selecting', 'routing', 'complete'].includes(animationState.currentStep)
+                
+                return (
+                  <div key={expert.id} className={styles.barColumn}>
+                    <div className={styles.barWrapper}>
+                      <div 
+                        className={`${styles.bar} ${showSelection && isSelected ? styles.barSelected : ''}`}
+                        style={{ 
+                          height: `${score * 100}%`,
+                          backgroundColor: expert.color,
+                          opacity: showSelection && !isSelected ? 0.3 : 0.8
+                        }}
+                      >
+                        {score > 0.05 && (
+                          <span className={styles.barLabel}>{score.toFixed(3)}</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className={styles.expertLabel}>
+                      <div 
+                        className={styles.expertColorDot} 
+                        style={{ backgroundColor: expert.color }}
+                      />
+                      <span className={styles.expertNameLabel}>E{expert.id + 1}</span>
+                      {showSelection && isSelected && (
+                        <span className={styles.checkmark}>✓</span>
+                      )}
+                    </div>
+                    {score > 0 && score <= 0.05 && (
+                      <span className={styles.smallScore}>{score.toFixed(3)}</span>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
           </div>
         </div>
 
