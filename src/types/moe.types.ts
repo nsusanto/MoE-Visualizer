@@ -63,8 +63,9 @@ export type AnimationStep =
 export interface AnimationState {
   currentStep: AnimationStep
   currentTokenIndex: number
-  expertScores: number[] // Scores for current token
-  selectedExperts: number[] // Top-K expert IDs
+  expertScores: number[] // Scores for first token (histogram display)
+  selectedExperts: number[] // Top-K expert IDs for first token (histogram display)
+  allSelectedExperts: number[] // All unique experts across all tokens (main view)
   isPlaying: boolean
 }
 
