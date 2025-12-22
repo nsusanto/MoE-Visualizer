@@ -12,8 +12,7 @@ function LandingPage() {
             <span className={styles.logoText}>MoE Visualizer</span>
           </div>
           <nav className={styles.nav}>
-            <a href="#features">Features</a>
-            <a href="#demo">Demo</a>
+            <a href="/visualizer">Demo</a>
             <a href="#docs">Docs</a>
           </nav>
         </div>
@@ -47,9 +46,9 @@ function LandingPage() {
       {/* Footer */}
       <footer className={styles.footer}>
         <div className={styles.footerContent}>
-          <p>Built with React, TypeScript, and D3.js</p>
+          <p>Built with React, TypeScript, and SVG</p>
           <div className={styles.footerLinks}>
-            <a href="https://github.com" target="_blank" rel="noopener noreferrer">
+            <a href="https://github.com/nsusanto/MoE-Visualizer" target="_blank" rel="noopener noreferrer">
               GitHub
             </a>
             <a href="#docs">Documentation</a>
