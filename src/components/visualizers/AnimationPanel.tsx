@@ -106,13 +106,13 @@ function AnimationPanel() {
       case 'idle':
         return 'Enter text to tokenize and route through the MoE network'
       case 'tokenizing':
-        return `Tokenizing: Split input into ${inputTokens.length} token(s)`
+        return `Tokenizing: Split input into ${inputTokens.length} tokens`
       case 'scoring':
-        return `Scoring: Computing gating scores for ALL ${inputTokens.length} token(s) in parallel (batch processing)`
+        return `Scoring: Computing gating scores for all ${inputTokens.length} token(s) in parallel`
       case 'selecting':
-        return `Selecting: Choosing top-${topK} experts for each token simultaneously`
+        return `Selecting: Choosing top-${topK} experts for each token`
       case 'routing':
-        return `Routing: All ${inputTokens.length} token(s) routed to their experts at once!`
+        return `Routing: All ${inputTokens.length} tokens to their experts`
       case 'complete':
         return `Complete! ${inputTokens.length} token(s) have been routed in parallel`
     }
@@ -182,26 +182,11 @@ function AnimationPanel() {
       </div>
 
       <div className={styles.statusSection}>
-        <div className={styles.stepIndicator}>
-          <div
-            className={`${styles.step} ${animationState.currentStep !== 'idle' ? styles.active : ''}`}
-          >
-            1. Tokenize
-          </div>
-          <div
-            className={`${styles.step} ${['scoring', 'selecting', 'routing', 'complete'].includes(animationState.currentStep) ? styles.active : ''}`}
-          >
-            2. Score
-          </div>
-          <div
-            className={`${styles.step} ${['selecting', 'routing', 'complete'].includes(animationState.currentStep) ? styles.active : ''}`}
-          >
-            3. Select Top-K
-          </div>
-          <div
-            className={`${styles.step} ${['routing', 'complete'].includes(animationState.currentStep) ? styles.active : ''}`}
-          >
-            4. Route
+        {/* Routing Histogram - shows expert scores and top-K selection */}
+        <div className={styles.routingHistogram}>
+          {/* Empty container - will populate later */}
+          <div className={styles.histogramPlaceholder}>
+            Routing histogram will appear here
           </div>
         </div>
 
