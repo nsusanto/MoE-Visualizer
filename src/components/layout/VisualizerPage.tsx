@@ -33,8 +33,6 @@ function VisualizerPage() {
           </Link>
           <nav className={styles.nav}>
             <Link to="/">Home</Link>
-            <a href="#controls">Controls</a>
-            <a href="#metrics">Metrics</a>
           </nav>
         </div>
       </header>
