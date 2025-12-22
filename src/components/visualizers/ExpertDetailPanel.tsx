@@ -9,10 +9,11 @@ interface ExpertDetailPanelProps {
 }
 
 function ExpertDetailPanel({ expert, isOpen, onClose }: ExpertDetailPanelProps) {
-  if (!expert) return null
-
   // Get tokens currently being processed by this expert
   const tokens = useSimulationStore(state => state.tokens)
+  
+  if (!expert) return null
+  
   const activeTokens = tokens.filter(
     t => t.status === 'processing' && t.targetExperts.includes(expert.id)
   )
@@ -81,7 +82,7 @@ function ExpertDetailPanel({ expert, isOpen, onClose }: ExpertDetailPanelProps) 
               <div className={styles.batchInfo}>
                 <div className={styles.batchLabel}>Current Batch:</div>
                 <div className={styles.tokenList}>
-                  {activeTokens.map((token, idx) => (
+                  {activeTokens.map((token) => (
                     <span key={token.id} className={styles.tokenBadge}>
                       {token.content}
                     </span>
