@@ -38,6 +38,7 @@ interface SimulationStore {
   // Actions - Expert management
   updateExpert: (expertId: number, updates: Partial<Expert>) => void
   incrementExpertLoad: (expertId: number) => void
+  completeExpertBatch: (expertId: number) => void
 
   // Actions - Playback control
   play: () => void
@@ -101,6 +102,8 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       ...expert,
       loadCount: 0,
       isActive: false,
+      batchStartTime: null,
+      batchProcessingTime: null,
     }))
     set({
       experts: resetExperts,
@@ -166,7 +169,8 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     // Route the token to experts
     const topK = useMoeStore.getState().topK
     newToken = routeToken(newToken, experts, topK)
-    
+    newToken.status = 'routing'
+
     // Record routing decisions
     newToken.targetExperts.forEach((expertId, index) => {
       get().recordRouting({
@@ -175,66 +179,63 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
         weight: newToken.routingWeights[index],
         timestamp: Date.now(),
       })
-      
-      // Mark expert as active
-      get().updateExpert(expertId, { isActive: true })
     })
     
     set({ tokens: [...tokens, newToken] })
     
-    // Calculate processing time based on expert load (realistic!)
-    // Base time: 3 seconds
-    // + 0.5s for each token already on the same experts
-    // + random jitter (±10%)
-    const expertLoads = newToken.targetExperts.map(expertId => {
-      // Count how many other tokens are currently processing on this expert
-      const tokensOnExpert = get().tokens.filter(
-        t => t.status === 'processing' && t.targetExperts.includes(expertId)
-      ).length
-      return tokensOnExpert
-    })
-    
-    // Use the maximum load across all target experts
-    const maxLoad = Math.max(...expertLoads, 0)
-    const baseProcessingTime = 3000 // 3 seconds
-    const loadPenalty = maxLoad * 500 // +0.5s per token on same expert
-    const jitter = (Math.random() - 0.5) * 0.2 // ±10% random variance
-    const processingTime = Math.round((baseProcessingTime + loadPenalty) * (1 + jitter))
-    
-    // Auto-progress token through states
+    const routingDelay = 800 // Time for lines to draw
     setTimeout(() => {
+      // Check if token still exists
+      const token = get().tokens.find(t => t.id === tokenId)
+      if (!token) return
+
       get().updateToken(tokenId, { 
         status: 'processing',
         ffnStage: 'input'
       })
       
-      // Progress through FFN stages once, then stop at output
+      token.targetExperts.forEach((expertId) => {
+        const expert = get().experts.find(e => e.id === expertId)
+        if (expert && !expert.isActive) {
+          const batchSize = get().tokens.filter(t =>
+            (t.status === 'routing' || t.status === 'processing') &&
+            t.targetExperts.includes(expertId)
+          ).length
+
+          // Processing time scales significantly with batch size
+          // Base: 2 seconds, +1.5s per additional token
+          // 1 token = 2s, 2 tokens = 7s, 3 tokens = 12s, 4 tokens = 17s
+          const baseTime = 2000
+          const timePerToken = 500
+          const processingTime = baseTime + (batchSize - 1) * timePerToken
+
+          get().updateExpert(expertId, {
+            isActive: true,
+            batchStartTime: Date.now(),
+            batchProcessingTime: processingTime
+          })
+
+          setTimeout(() => {
+            get().completeExpertBatch(expertId)
+          }, processingTime)
+        }
+      })
+
+      // Progress token through FFN stages for visualization
+      const avgProcessingTime = 3000
       const ffnStages: Array<'ffn1' | 'relu' | 'ffn2' | 'output'> = 
         ['ffn1', 'relu', 'ffn2', 'output']
-      const stageTime = processingTime / (ffnStages.length + 1)
+      const stageTime = avgProcessingTime / (ffnStages.length + 1)
+
       ffnStages.forEach((stage, index) => {
         setTimeout(() => {
-          get().updateToken(tokenId, { ffnStage: stage })
+          const currentToken = get().tokens.find(t => t.id === tokenId)
+          if (currentToken && currentToken.status === 'processing') {
+            get().updateToken(tokenId, { ffnStage: stage })
+          }
         }, stageTime * (index + 1))
       })
-      
-      // After processing, mark as complete and remove
-      setTimeout(() => {
-        get().updateToken(tokenId, { status: 'complete', ffnStage: 'output' })
-        
-        // Increment expert load and deactivate
-        newToken.targetExperts.forEach(expertId => {
-          get().incrementExpertLoad(expertId)
-          get().updateExpert(expertId, { isActive: false })
-        })
-        
-        // Remove token after brief delay
-        setTimeout(() => {
-          get().removeToken(tokenId)
-          get().updateStats()
-        }, 1000) // Show complete state for 1 second
-      }, processingTime)
-    }, 100)
+    }, routingDelay)
   },
 
   // Update a specific token
@@ -269,6 +270,45 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
         expert.id === expertId ? { ...expert, loadCount: expert.loadCount + 1 } : expert
       ),
     }))
+  },
+
+  // Complete all tokens in an expert's batch
+  completeExpertBatch: expertId => {
+    const { tokens } = get()
+
+    const batchTokens = tokens.filter(
+      t => t.status === 'processing' && t.targetExperts.includes(expertId)
+    )
+
+    // Mark all tokens as complete
+    batchTokens.forEach(token => {
+      get().updateToken(token.id, { status: 'complete', ffnStage: 'output' })
+    })
+
+    // Deactivate expert
+    get().updateExpert(expertId, {
+      isActive: false,
+      batchStartTime: null,
+      batchProcessingTime: null,
+      loadCount: get().experts.find(e => e.id === expertId)!.loadCount + batchTokens.length
+    })
+
+    setTimeout(() => {
+      const completeTokens = get().tokens.filter(t => t.status === 'complete')
+
+      completeTokens.forEach(token => {
+        // Check if ALL of this token's experts are done processing
+        const allExpertsDone = token.targetExperts.every(expId => {
+          const expert = get().experts.find(e => e.id === expId)
+          return expert?.isActive === false
+        })
+
+        if (allExpertsDone) {
+          get().removeToken(token.id)
+        }
+      })
+      get().updateStats()
+    }, 1000)
   },
 
   // Playback controls
