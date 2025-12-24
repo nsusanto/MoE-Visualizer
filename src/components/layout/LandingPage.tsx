@@ -13,7 +13,6 @@ function LandingPage() {
           </div>
           <nav className={styles.nav}>
             <a href="/visualizer">Demo</a>
-            <a href="#docs">Docs</a>
           </nav>
         </div>
       </header>
@@ -51,8 +50,7 @@ function LandingPage() {
             <a href="https://github.com/nsusanto/MoE-Visualizer" target="_blank" rel="noopener noreferrer">
               GitHub
             </a>
-            <a href="#docs">Documentation</a>
-            <a href="#about">About</a>
+            <a href="/docs">Documentation</a>
           </div>
         </div>
       </footer>
