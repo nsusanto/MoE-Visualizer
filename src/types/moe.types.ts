@@ -8,11 +8,13 @@ export interface Position {
 export interface Expert {
   id: number
   name: string
-  specialization: string // e.g., "Math", "Language", "Science"
+  specialization: string // e.g., "Grammar", "Noun", "Verb"
   color: string // Hex color for visualization
   position: Position // Where to draw it
   loadCount: number // How many tokens this expert has processed
   isActive: boolean // Currently processing?
+  batchStartTime: number | null // When the current batch started processing
+  batchProcessingTime: number | null // How long this batch will take (ms)
 }
 
 // Status of a token as it moves through the system

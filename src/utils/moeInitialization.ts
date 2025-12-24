@@ -23,6 +23,8 @@ export function initializeExperts(count: number): Expert[] {
       position: { x, y },
       loadCount: 0,
       isActive: false,
+      batchStartTime: null,
+      batchProcessingTime: null,
     })
   }
 
