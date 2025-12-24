@@ -187,17 +187,19 @@ function AnimationPanel() {
         {/* Routing Histogram - shows expert scores and top-K selection */}
         <div className={styles.routingHistogram}>
           <div className={styles.histogramContent}>
-            <h4 className={styles.histogramTitle}>
-              {animationState.expertScores.length > 0 
-                ? `Router Scores for "${inputTokens[0] || 'token'}" (Softmax)`
-                : 'Router Scores (Softmax)'}
-              {animationState.currentStep === 'selecting' && animationState.expertScores.length > 0 && ` - Top-${topK} Selected`}
-            </h4>
+              <h4 className={styles.histogramTitle}>
+                {animationState.expertScores.length > 0
+                  ? <>Router Scores for <strong>{inputTokens[0] || 'token'}</strong></>
+                  : 'Router Scores'}
+                {animationState.currentStep === 'selecting' && animationState.expertScores.length > 0 && ` - Top-${topK} Selected`}
+              </h4>
             <div className={styles.barsContainer}>
               {experts.map((expert, idx) => {
                 const score = animationState.expertScores[idx] || 0
                 const isSelected = animationState.selectedExperts.includes(idx)
                 const showSelection = ['selecting', 'routing', 'complete'].includes(animationState.currentStep)
+                const maxScore = Math.max(...animationState.expertScores, 0.01)
+                const scaledHeight = (score / maxScore) * 100
                 
                 return (
                   <div key={expert.id} className={styles.barColumn}>
@@ -205,7 +207,7 @@ function AnimationPanel() {
                       <div 
                         className={`${styles.bar} ${showSelection && isSelected ? styles.barSelected : ''}`}
                         style={{ 
-                          height: `${score * 100}%`,
+                          height: scaledHeight,
                           backgroundColor: expert.color,
                           opacity: showSelection && !isSelected ? 0.3 : 0.8
                         }}
