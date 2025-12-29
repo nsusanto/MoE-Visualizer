@@ -11,7 +11,7 @@ function AnimationPanel() {
   const topK = useMoeStore(state => state.topK)
   const addToken = useSimulationStore(state => state.addToken)
 
-  const MAX_TOKENS = 20
+  const MAX_TOKENS = 50
 
   const [input, setInput] = useState('')
   const setAnimationState = useSimulationStore(state => state.setAnimationState)
@@ -212,7 +212,7 @@ function AnimationPanel() {
                           opacity: showSelection && !isSelected ? 0.3 : 0.8
                         }}
                       >
-                        {score > 0.05 && (
+                        {score > 0.08 && scaledHeight > 30 && (
                           <span className={styles.barLabel}>{score.toFixed(3)}</span>
                         )}
                       </div>
@@ -227,9 +227,6 @@ function AnimationPanel() {
                         <span className={styles.checkmark}>✓</span>
                       )}
                     </div>
-                    {score > 0 && score <= 0.05 && (
-                      <span className={styles.smallScore}>{score.toFixed(3)}</span>
-                    )}
                   </div>
                 )
               })}
