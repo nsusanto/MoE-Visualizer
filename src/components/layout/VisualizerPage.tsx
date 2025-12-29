@@ -15,10 +15,8 @@ function VisualizerPage() {
   // Get values and setters from the store
   const numExperts = useMoeStore(state => state.numExperts)
   const topK = useMoeStore(state => state.topK)
-  const animationSpeed = useMoeStore(state => state.animationSpeed)
   const setNumExperts = useMoeStore(state => state.setNumExperts)
   const setTopK = useMoeStore(state => state.setTopK)
-  const setAnimationSpeed = useMoeStore(state => state.setAnimationSpeed)
   const resetConfig = useMoeStore(state => state.resetConfig)
 
   // Check if we should disable controls (tokens exist or animation running)
@@ -98,17 +96,6 @@ function VisualizerPage() {
                 />
                 <span className={styles.value}>{topK}</span>
               </div>
-              <div className={styles.controlGroup}>
-                <label>Animation Speed</label>
-                <input
-                  type="range"
-                  min="1"
-                  max="10"
-                  value={animationSpeed}
-                  onChange={e => setAnimationSpeed(Number(e.target.value))}
-                />
-                <span className={styles.value}>{animationSpeed}x</span>
-              </div>
             </div>
 
             <div className={styles.configSummary}>
@@ -119,10 +106,9 @@ function VisualizerPage() {
               )}
               <p>
                 Current Configuration: Each token will be routed to{' '}
-                <strong>{topK}</strong> out of <strong>{numExperts}</strong> experts
-                at <strong>{animationSpeed}x</strong> speed.
+                <strong>{topK}</strong> out of <strong>{numExperts}</strong> experts.
               </p>
-              <button className={styles.resetButton} onClick={resetConfig}>
+              <button className={styles.resetButton} onClick={resetConfig} disabled={shouldDisableControls}>
                 Reset to Defaults
               </button>
             </div>
