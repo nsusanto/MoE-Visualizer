@@ -46,7 +46,7 @@ function ExpertNetwork() {
             if (!expert) return null
 
             const weight = token.routingWeights[index]
-            const strokeWidth = 1 + weight * 3 // 1-4px based on weight
+            const strokeWidth = 1 + weight * 2
 
             // Add curve based on index to separate overlapping lines
             const curveOffset = (index - (token.targetExperts.length - 1) / 2) * 15
