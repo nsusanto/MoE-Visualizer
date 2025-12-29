@@ -5,7 +5,7 @@ import DocsPage from './components/layout/DocsPage'
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/MoE-Visualizer">
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/visualizer" element={<VisualizerPage />} />
