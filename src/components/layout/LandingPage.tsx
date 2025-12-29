@@ -12,6 +12,7 @@ function LandingPage() {
             <span className={styles.logoText}>MoE Visualizer</span>
           </div>
           <nav className={styles.nav}>
+            <a href="/docs">Docs</a>
             <a href="/visualizer">Demo</a>
           </nav>
         </div>

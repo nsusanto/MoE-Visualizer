@@ -38,6 +38,7 @@ function VisualizerPage() {
           </Link>
           <nav className={styles.nav}>
             <Link to="/">Home</Link>
+            <Link to="/docs">Docs</Link>
             <button 
               className={styles.metricsButton}
               onClick={() => setIsMetricsPanelOpen(true)}
