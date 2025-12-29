@@ -212,7 +212,7 @@ function AnimationPanel() {
                           opacity: showSelection && !isSelected ? 0.3 : 0.8
                         }}
                       >
-                        {score > 0.05 && (
+                        {score > 0.08 && scaledHeight > 30 && (
                           <span className={styles.barLabel}>{score.toFixed(3)}</span>
                         )}
                       </div>
@@ -227,9 +227,6 @@ function AnimationPanel() {
                         <span className={styles.checkmark}>✓</span>
                       )}
                     </div>
-                    {score > 0 && score <= 0.05 && (
-                      <span className={styles.smallScore}>{score.toFixed(3)}</span>
-                    )}
                   </div>
                 )
               })}
