@@ -62,6 +62,10 @@ const initialStats: MoeStats = {
   maxExpertLoad: 0,
   minExpertLoad: 0,
   isBalanced: true,
+  auxiliaryLoss: 0,
+  loadImbalanceFactor: 0,
+  expertUtilization: [],
+  tokensPerExpert: [],
 }
 
 const initialAnimationState: AnimationState = {
@@ -178,10 +182,14 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
         expertId,
         weight: newToken.routingWeights[index],
         timestamp: Date.now(),
+        gatingProbabilities: newToken.gatingProbabilities,
       })
     })
     
     set({ tokens: [...tokens, newToken] })
+    
+    // Update stats after adding token
+    get().updateStats()
     
     const routingDelay = 800 // Time for lines to draw
     setTimeout(() => {
@@ -338,6 +346,47 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       expert => Math.abs(expert.loadCount - avgLoad) <= avgLoad * 0.2
     )
 
+    // Calculate auxiliary loss: L_aux = N * Σ(f_e * P_e)
+    // where:
+    // - N = number of experts
+    // - f_e = fraction of tokens dispatched to expert e
+    // - P_e = average gating probability for expert e
+    let auxiliaryLoss = 0
+    if (totalLoad > 0 && routingHistory.length > 0) {
+      const avgGatingProbs = new Array(experts.length).fill(0)
+      const tokenGatingProbs = new Map<string, number[]>()
+      routingHistory.forEach(decision => {
+        if (!tokenGatingProbs.has(decision.tokenId) && decision.gatingProbabilities) {
+          tokenGatingProbs.set(decision.tokenId, decision.gatingProbabilities)
+        }
+      })
+      tokenGatingProbs.forEach(probs => {
+        probs.forEach((prob, expertIdx) => {
+          avgGatingProbs[expertIdx] += prob
+        })
+      })
+      const numTokens = tokenGatingProbs.size
+      avgGatingProbs.forEach((sum, idx) => {
+        avgGatingProbs[idx] = sum / numTokens
+      })
+      
+      const dispatchFractions = loads.map(load => load / totalLoad)
+      const dotProduct = dispatchFractions.reduce((sum, f_e, expertIdx) => {
+        const P_e = avgGatingProbs[expertIdx]
+        return sum + (f_e * P_e)
+      }, 0)
+      auxiliaryLoss = experts.length * dotProduct
+    }
+    
+    // CV = (standard deviation) / mean
+    const variance = loads.reduce((sum, load) => sum + Math.pow(load - avgLoad, 2), 0) / experts.length
+    const stdDev = Math.sqrt(variance)
+    const loadImbalanceFactor = avgLoad > 0 ? stdDev / avgLoad : 0
+    const expertUtilization = totalLoad > 0 
+      ? loads.map(load => (load / totalLoad) * 100)
+      : loads.map(() => 0)
+    const tokensPerExpert = [...loads]
+
     set({
       stats: {
         totalTokensProcessed: routingHistory.length,
@@ -345,6 +394,10 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
         maxExpertLoad: maxLoad,
         minExpertLoad: minLoad,
         isBalanced,
+        auxiliaryLoss,
+        loadImbalanceFactor,
+        expertUtilization,
+        tokensPerExpert,
       },
     })
   },

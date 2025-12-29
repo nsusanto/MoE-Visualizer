@@ -8,13 +8,13 @@ export interface Position {
 export interface Expert {
   id: number
   name: string
-  specialization: string // e.g., "Grammar", "Noun", "Verb"
-  color: string // Hex color for visualization
-  position: Position // Where to draw it
-  loadCount: number // How many tokens this expert has processed
-  isActive: boolean // Currently processing?
-  batchStartTime: number | null // When the current batch started processing
-  batchProcessingTime: number | null // How long this batch will take (ms)
+  specialization: string
+  color: string
+  position: Position
+  loadCount: number
+  isActive: boolean
+  batchStartTime: number | null
+  batchProcessingTime: number | null
 }
 
 // Status of a token as it moves through the system
@@ -26,22 +26,24 @@ export type FFNStage = 'input' | 'ffn1' | 'relu' | 'ffn2' | 'output' | null
 // Represents a token (input) being processed
 export interface Token {
   id: string
-  content: string // What the token represents
-  position: Position // Current position for animation
-  targetExperts: number[] // IDs of experts this token routes to
-  routingWeights: number[] // Weight for each target expert (sums to 1.0)
+  content: string
+  position: Position
+  targetExperts: number[]
+  routingWeights: number[]
+  gatingProbabilities: number[] // Softmax probabilities for ALL experts (for aux loss)
   status: TokenStatus
-  timestamp: number // When it was created
-  ffnStage?: FFNStage // Current FFN processing stage (if processing)
-  processingExpertId?: number // Which expert is currently processing this token
+  timestamp: number
+  ffnStage?: FFNStage
+  processingExpertId?: number
 }
 
 // A routing decision made by the gating network
 export interface RoutingDecision {
   tokenId: string
   expertId: number
-  weight: number // 0.0 - 1.0
+  weight: number
   timestamp: number
+  gatingProbabilities: number[]
 }
 
 // Statistics about the MoE system
@@ -50,7 +52,11 @@ export interface MoeStats {
   avgExpertUtilization: number
   maxExpertLoad: number
   minExpertLoad: number
-  isBalanced: boolean // Whether load is evenly distributed
+  isBalanced: boolean
+  auxiliaryLoss: number
+  loadImbalanceFactor: number
+  expertUtilization: number[]
+  tokensPerExpert: number[]
 }
 
 // Animation step for educational visualization
@@ -65,9 +71,9 @@ export type AnimationStep =
 export interface AnimationState {
   currentStep: AnimationStep
   currentTokenIndex: number
-  expertScores: number[] // Scores for first token (histogram display)
-  selectedExperts: number[] // Top-K expert IDs for first token (histogram display)
-  allSelectedExperts: number[] // All unique experts across all tokens (main view)
+  expertScores: number[]
+  selectedExperts: number[]
+  allSelectedExperts: number[]
   isPlaying: boolean
 }
 

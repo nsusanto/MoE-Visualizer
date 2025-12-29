@@ -41,6 +41,7 @@ export function generateToken(id: string): Token {
     position: { x: 450, y: 325 }, // Start at center
     targetExperts: [],
     routingWeights: [],
+    gatingProbabilities: [], // Will be populated during routing
     status: 'idle',
     timestamp: Date.now(),
   }

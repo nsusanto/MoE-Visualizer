@@ -1,12 +1,17 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useMoeStore } from '../../store/moeStore'
 import { useSimulationStore } from '../../store/simulationStore'
 import ExpertNetwork from '../visualizers/ExpertNetwork'
 import AnimationPanel from '../visualizers/AnimationPanel'
 import StatusLegend from '../common/StatusLegend'
+import { MetricsPanel } from '../visualizers/MetricsPanel'
 import styles from './VisualizerPage.module.css'
 
 function VisualizerPage() {
+  // Metrics panel state
+  const [isMetricsPanelOpen, setIsMetricsPanelOpen] = useState(false)
+
   // Get values and setters from the store
   const numExperts = useMoeStore(state => state.numExperts)
   const topK = useMoeStore(state => state.topK)
@@ -33,6 +38,12 @@ function VisualizerPage() {
           </Link>
           <nav className={styles.nav}>
             <Link to="/">Home</Link>
+            <button 
+              className={styles.metricsButton}
+              onClick={() => setIsMetricsPanelOpen(true)}
+            >
+              Metrics
+            </button>
           </nav>
         </div>
       </header>
@@ -117,6 +128,12 @@ function VisualizerPage() {
           </div>
         </div>
       </main>
+
+      {/* Metrics Sidebar */}
+      <MetricsPanel 
+        isOpen={isMetricsPanelOpen}
+        onClose={() => setIsMetricsPanelOpen(false)}
+      />
     </div>
   )
 }

@@ -39,6 +39,17 @@ export function selectTopK(scores: number[], k: number): number[] {
 }
 
 /**
+ * Compute softmax probabilities from raw scores
+ * This gives us the gating probabilities (P) for auxiliary loss
+ */
+export function softmax(scores: number[]): number[] {
+  const maxScore = Math.max(...scores)
+  const expScores = scores.map(score => Math.exp(score - maxScore))
+  const sumExp = expScores.reduce((acc, val) => acc + val, 0)
+  return expScores.map(exp => exp / sumExp)
+}
+
+/**
  * Normalize weights so they sum to 1.0
  */
 export function normalizeWeights(scores: number[], selectedIndices: number[]): number[] {
@@ -62,13 +73,16 @@ export function normalizeWeights(scores: number[], selectedIndices: number[]): n
  * Updates the token with target experts and weights
  */
 export function routeToken(token: Token, experts: Expert[], topK: number): Token {
-  // Compute scores
+  // Compute raw scores
   const scores = computeGatingScores(token, experts)
+  
+  // Compute softmax probabilities (P_e in auxiliary loss formula)
+  const gatingProbabilities = softmax(scores)
   
   // Select top K experts
   const targetExperts = selectTopK(scores, topK)
   
-  // Normalize weights
+  // Normalize weights for selected experts
   const routingWeights = normalizeWeights(scores, targetExperts)
   
   // Update token
@@ -76,6 +90,7 @@ export function routeToken(token: Token, experts: Expert[], topK: number): Token
     ...token,
     targetExperts,
     routingWeights,
+    gatingProbabilities, // Store full softmax for auxiliary loss calculation
     status: 'routing',
   }
 }
