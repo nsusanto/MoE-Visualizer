@@ -3,13 +3,16 @@
   "version": "0.1.0",
   "description": "Interactive visualization tool for Mixture of Experts models",
   "type": "module",
+  "homepage": "https://nsusanto.github.io/MoE-Visualizer",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "vitest",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "format": "prettier --write \"src/**/*.{ts,tsx,css,md}\""
+    "format": "prettier --write \"src/**/*.{ts,tsx,css,md}\"",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "d3": "^7.8.5",
@@ -28,6 +31,7 @@
     "eslint": "^8.55.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
+    "gh-pages": "^6.1.1",
     "prettier": "^3.1.1",
     "typescript": "^5.2.2",
     "vite": "^7.2.7",
