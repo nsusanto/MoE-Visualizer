@@ -11,14 +11,12 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({ isOpen, onClose }) =
   const stats = useSimulationStore(state => state.stats);
   const experts = useSimulationStore(state => state.experts);
 
-  // Helper to get status color for auxiliary loss
   const getAuxLossStatus = (value: number) => {
     if (value < 1.2) return { color: '#10b981', label: 'Excellent' };
     if (value < 1.5) return { color: '#f59e0b', label: 'Moderate' };
     return { color: '#ef4444', label: 'Poor' };
   };
 
-  // Helper to get status color for load imbalance
   const getImbalanceStatus = (value: number) => {
     if (value < 0.3) return { color: '#10b981', label: 'Excellent' };
     if (value < 0.6) return { color: '#f59e0b', label: 'Moderate' };

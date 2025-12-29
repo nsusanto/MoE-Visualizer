@@ -135,7 +135,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     const existingPositions = tokens.map(t => t.position)
     const centerX = 450
     const centerY = 325
-    const maxRadius = Math.min(300, 100 + tokens.length * 5)
+    const maxRadius = Math.min(250, 100 + tokens.length * 5)
     const minDistance = 32  // Reduced from 40 to fit smaller circles
     
     let position = { x: centerX, y: centerY }
@@ -285,20 +285,27 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     const { tokens } = get()
 
     const batchTokens = tokens.filter(
-      t => t.status === 'processing' && t.targetExperts.includes(expertId)
+      t => (t.status === 'routing' || t.status === 'processing') && 
+           t.targetExperts.includes(expertId)
     )
 
-    // Mark all tokens as complete
-    batchTokens.forEach(token => {
-      get().updateToken(token.id, { status: 'complete', ffnStage: 'output' })
-    })
-
-    // Deactivate expert
+    const currentLoad = get().experts.find(e => e.id === expertId)!.loadCount
     get().updateExpert(expertId, {
       isActive: false,
       batchStartTime: null,
       batchProcessingTime: null,
-      loadCount: get().experts.find(e => e.id === expertId)!.loadCount + batchTokens.length
+      loadCount: currentLoad + batchTokens.length
+    })
+
+    batchTokens.forEach(token => {
+      const allExpertsDone = token.targetExperts.every(expId => {
+        const expert = get().experts.find(e => e.id === expId)
+        return expert && (!expert.isActive || expId === expertId)
+      })
+
+      if (allExpertsDone) {
+        get().updateToken(token.id, { status: 'complete', ffnStage: 'output' })
+      }
     })
 
     setTimeout(() => {
