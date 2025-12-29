@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import styles from './LandingPage.module.css'
 
 function LandingPage() {
@@ -12,8 +12,8 @@ function LandingPage() {
             <span className={styles.logoText}>MoE Visualizer</span>
           </div>
           <nav className={styles.nav}>
-            <a href="/docs">Docs</a>
-            <a href="/visualizer">Demo</a>
+            <Link to="/docs">Docs</Link>
+            <Link to="/visualizer">Demo</Link>
           </nav>
         </div>
       </header>
@@ -51,7 +51,6 @@ function LandingPage() {
             <a href="https://github.com/nsusanto/MoE-Visualizer" target="_blank" rel="noopener noreferrer">
               GitHub
             </a>
-            <a href="/docs">Documentation</a>
           </div>
         </div>
       </footer>

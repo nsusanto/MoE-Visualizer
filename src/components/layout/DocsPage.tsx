@@ -1,6 +1,9 @@
 import { Link } from 'react-router-dom'
 import styles from './DocsPage.module.css'
 
+// Get base URL from Vite config (respects the base path)
+const baseUrl = import.meta.env.BASE_URL
+
 function DocsPage() {
   return (
     <div className={styles.container}>
@@ -12,7 +15,7 @@ function DocsPage() {
           </Link>
           <nav className={styles.nav}>
             <Link to="/">Home</Link>
-            <a href="/visualizer">Demo</a>
+            <Link to="/visualizer">Demo</Link>
           </nav>
         </div>
       </header>
@@ -55,7 +58,7 @@ function DocsPage() {
                   different patterns or input types (Usually syntactic patterns like verbs, nouns, adjectives, etc.).
                 </li>
                 <div className={styles.imageContainer}>
-                  <img src="/assets/expert_specialization.png" alt="Expert Specialization" className={styles.image} />
+                  <img src={`${baseUrl}assets/expert_specialization.png`} alt="Expert Specialization" className={styles.image} />
                   <p className={styles.imageCaption}>Each expert specializes in different syntactic patterns during training</p>
                 </div>
               </ul>
@@ -77,7 +80,7 @@ function DocsPage() {
                 <li>Simple and stable, but inefficient for very large models</li>
               </ul>
               <div className={styles.imageContainer}>
-                <img src="/assets/dense_model.png" alt="Dense MoE Model Architecture" className={styles.image} />
+                <img src={`${baseUrl}assets/dense_model.png`} alt="Dense MoE Model Architecture" className={styles.image} />
                 <p className={styles.imageCaption}>Dense MoE architecture: All experts are selected and activated per token</p>
               </div>
             </div>
@@ -95,7 +98,7 @@ function DocsPage() {
 
               </ul>
               <div className={styles.imageContainer}>
-                <img src="/assets/sparse_model.png" alt="Sparse MoE Model Architecture" className={styles.image} />
+                <img src={`${baseUrl}assets/sparse_model.png`} alt="Sparse MoE Model Architecture" className={styles.image} />
                 <p className={styles.imageCaption}>Sparse MoE architecture: Only selected experts (highlighted) are activated per token</p>
               </div>
             </div>
@@ -106,7 +109,7 @@ function DocsPage() {
 
               <h3>1. Gating Network (Router)</h3>
               <div className={styles.imageContainer}>
-                    <img src="/assets/routing_diagram.png" alt="MoE Routing Diagram" className={styles.image} />
+                    <img src={`${baseUrl}assets/routing_diagram.png`} alt="MoE Routing Diagram" className={styles.image} />
                     <p className={styles.imageCaption}>Token routing process: Gating → Top-K Selection → Expert Processing</p>
                 </div>
               <p>
@@ -122,7 +125,7 @@ function DocsPage() {
               </pre>
               
               <div className={styles.imageContainer}>
-                <img src="/assets/x_times_w.png" alt="Matrix multiplication h = x × W" className={styles.image} />
+                <img src={`${baseUrl}assets/x_times_w.png`} alt="Matrix multiplication h = x × W" className={styles.image} />
                 <p className={styles.imageCaption}>Linear transformation: token embedding (x) multiplied by weight matrix (W)</p>
               </div>
               
@@ -144,7 +147,7 @@ function DocsPage() {
               </pre>
               
               <div className={styles.imageContainer}>
-                <img src="/assets/softmax.png" alt="Softmax function" className={styles.image} />
+                <img src={`${baseUrl}assets/softmax.png`} alt="Softmax function" className={styles.image} />
                 <p className={styles.imageCaption}>Softmax converts raw scores into a probability distribution that sums to 1</p>
               </div>
               
@@ -154,7 +157,7 @@ function DocsPage() {
               </p>
               <h4>Step 1c: Repeat!</h4>
                 <div className={styles.imageContainer}>
-                    <img src="/assets/expert_layers.png" alt="Expert FFN Layers" className={styles.image} />
+                    <img src={`${baseUrl}assets/expert_layers.png`} alt="Expert FFN Layers" className={styles.image} />
                     <p className={styles.imageCaption}>Multi-layer MoE architecture: Each token goes through multiple MoE layers</p>
                 </div>
                 <p>
@@ -287,7 +290,6 @@ function DocsPage() {
             <a href="https://github.com/nsusanto/MoE-Visualizer" target="_blank" rel="noopener noreferrer">
               GitHub
             </a>
-            <Link to="/">Home</Link>
           </div>
         </div>
       </footer>
